@@ -1,0 +1,18 @@
+title: "[수업 후기] "
+body:
+  - type: input
+    id: setting
+    attributes:
+      label: 수업 또는 연수 상황
+      placeholder: "예: 교사 20명, 30분 활동"
+  - type: textarea
+    id: experience
+    attributes:
+      label: 활동 과정과 관찰
+      description: 실명과 개인 성적을 제외하고 예상과 결과, 토론을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: prompts
+    attributes:
+      label: 도움이 된 발문과 다음 수업 아이디어

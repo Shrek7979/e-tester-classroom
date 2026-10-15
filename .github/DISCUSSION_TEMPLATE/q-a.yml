@@ -1,0 +1,20 @@
+title: "[질문] "
+body:
+  - type: markdown
+    attributes:
+      value: "수학적 원리와 앱 사용에 관해 함께 질문하고 답하는 공간입니다. 참가자의 실명이나 개인 성적은 올리지 말아 주세요."
+  - type: textarea
+    id: question
+    attributes:
+      label: 궁금한 점
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: 타일 수와 시행 횟수
+      placeholder: "예: 타일 13개, 시행 1000회"
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: 내가 생각한 설명과 함께 나누고 싶은 점

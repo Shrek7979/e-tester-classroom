@@ -4,7 +4,8 @@
 
 ## 선생님들과 함께 사용하기
 
-- [앱 실행](https://stats-magic-show.web.app/)
+- [GitHub Pages에서 앱 실행](https://shrek7979.github.io/e-tester-classroom/)
+- [기존 앱 주소](https://stats-magic-show.web.app/)
 - [질문과 수업 후기 게시판](https://github.com/Shrek7979/e-tester-classroom/discussions)
 - [오류 제보와 개선 제안](https://github.com/Shrek7979/e-tester-classroom/issues/new/choose)
 - [참여 안내](COMMUNITY.md)

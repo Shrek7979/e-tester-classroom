@@ -1,8 +1,12 @@
 # 선생님들과 함께 만드는 e-Tester
 
-[앱 실행하기](https://stats-magic-show.web.app/)
+[GitHub Pages에서 앱 실행하기](https://shrek7979.github.io/e-tester-classroom/)
 
 이 저장소의 [Discussions 게시판](https://github.com/Shrek7979/e-tester-classroom/discussions)에서 질문과 수업 후기를 나눕니다. GitHub 계정으로 로그인한 뒤 New discussion을 눌러 글을 적어 주세요. 다른 선생님의 글에도 댓글을 달 수 있습니다.
+
+- Q&A는 수학과 사용법 질문을 위한 공간입니다.
+- Show and tell은 수업과 연수 후기를 나누는 공간입니다.
+- Ideas는 새로운 활동과 개선 아이디어를 나누는 공간입니다.
 
 앱의 오류나 구체적인 개선 요청은 [Issues 작성 양식](https://github.com/Shrek7979/e-tester-classroom/issues/new/choose)을 사용해 주세요. 질문과 수업 후기도 Issues 양식으로 작성할 수 있습니다.
 

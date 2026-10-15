@@ -1,0 +1,14 @@
+title: "[아이디어] "
+body:
+  - type: textarea
+    id: situation
+    attributes:
+      label: 수업에서 겪은 상황
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 함께 발전시키고 싶은 아이디어
+    validations:
+      required: true

@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: 선생님들의 질문과 수업 후기
+    url: https://github.com/Shrek7979/e-tester-classroom/discussions
+    about: 실험 원리와 수업 경험을 게시판에서 나눕니다.
   - name: e-Tester 앱 실행
     url: https://stats-magic-show.web.app/
     about: 자연상수 e를 찾는 공동 실험을 시작합니다.

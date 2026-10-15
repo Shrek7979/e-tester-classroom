@@ -125,4 +125,3 @@ $('#app').addEventListener('change',async e=>{if(e.target.id==='tileCount'){cons
  async function resume(){try{const saved=JSON.parse(sessionStorage.getItem('et-room-session')||'null');if(saved&&(!params.get('room')||params.get('room').toUpperCase()===saved.room)){Object.assign(S,saved);const c=await api('config');if(!c)throw Error('이전 방을 찾을 수 없습니다.');Object.assign(S,{n:c.n,stage:c.stage,epoch:c.epoch});restore();await queueSave();pollTimer=setInterval(poll,2000);await poll();render();return;}}catch(err){Object.assign(S,{room:null,role:'solo',epoch:'solo',participants:{},pending:false});resetOwn();notice(err.message);}render();if(params.has('room')){$('#roomCode').value=params.get('room').toUpperCase();$('#demoMode').checked=params.get('demo')==='1';showRoom('join');}else if(params.has('host'))showRoom('create');}
  render();resume();
 })();
-
