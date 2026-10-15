@@ -1,0 +1,21 @@
+name: 수학과 사용법 질문
+description: 실험 원리나 앱 사용에 관한 질문을 나눕니다.
+title: "[질문] "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 궁금한 점
+      description: 어떤 부분을 함께 살펴보고 싶은지 적어 주세요.
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: 실험 조건
+      placeholder: "예: 타일 13개, 시행 1000회, 성공 375회"
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: 내가 생각한 설명
+      description: 예측이나 계산 과정을 함께 적어 주시면 좋습니다.

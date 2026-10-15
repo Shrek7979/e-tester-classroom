@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="번호 타일을 섞고 선생님들의 실험을 모아 자연상수 e를 발견하는 참여형 수학 실험실">
+<title>e-Tester · 아무도 제자리가 아니면</title>
+<link rel="stylesheet" href="style.css">
+<script src="firebase-config.js" defer></script><script src="math.js" defer></script><script src="app.js" defer></script>
+</head>
+<body>
+<header class="top"><a class="brand" href="./"><span class="brand-mark">e</span><span>e-Tester<small>선생님들의 수학 실험실</small></span></a><div class="top-right"><span id="connection" class="badge">개인 실험</span><button class="plain" id="guideOpen">진행 안내</button></div></header>
+<main>
+<section class="hero"><div><p class="eyebrow">A SMALL SHUFFLE, A MATHEMATICAL DISCOVERY</p><h1>아무도<br>제자리가 아니면?</h1><p class="intro">번호 타일을 무작위로 섞습니다.<br>하나도 제자리로 돌아오지 않을 확률,<br>우리의 실험 속에서 <em>e</em>를 찾아보세요.</p><div class="hero-meta"><span>01 예측하기</span><i></i><span>02 함께 실험하기</span><i></i><span>03 e 발견하기</span></div></div><div class="hero-visual" aria-hidden="true"><div class="visual-label">THE DERANGEMENT EXPERIMENT</div><div class="floating-tile t1">3<small>자리 1</small></div><div class="floating-tile t2">1<small>자리 2</small></div><div class="floating-tile t3">4<small>자리 3</small></div><div class="floating-tile t4">2<small>자리 4</small></div><div class="visual-caption"><span class="mini-dot"></span>모두 다른 자리. 우연 속에 숨은 규칙.</div></div></section>
+<section class="room-bar" aria-label="함께 실험하기"><div><b id="roomTitle">같이 하면, 더 잘 보입니다.</b><span id="roomDescription">선생님들의 실험 결과를 한 화면에 모아 보세요.</span></div><div class="room-actions" id="roomActions"><button class="outline" id="joinOpen">참가 코드 입력</button><button class="dark" id="createOpen">진행자 방 만들기 <span>↗</span></button></div></section>
+<div id="notice" role="status" aria-live="polite" hidden></div>
+<section class="community-banner" aria-label="선생님 소통 공간"><span>선생님들의 질문과 수업 이야기를 나눠요.</span><div><a href="https://github.com/Shrek7979/e-tester-classroom/discussions" target="_blank" rel="noopener">질문·수업 후기 ↗</a><a href="https://github.com/Shrek7979/e-tester-classroom/issues/new/choose" target="_blank" rel="noopener">오류·개선 제안 ↗</a></div></section>
+<nav class="steps" aria-label="탐구 단계"><button class="active" data-tab="experiment"><b>01</b> 타일 실험</button><button data-tab="results"><b>02</b> 우리의 데이터</button><button data-tab="theory"><b>03</b> 왜 e일까?</button></nav>
+<div id="hostControls" hidden></div>
+<div id="autoBar" class="auto-bar" hidden aria-live="polite"></div>
+<div id="app"></div>
+<footer><span>e-Tester</span><p>루미큐브 타일 실험을 웹으로 옮긴 수학 탐구 활동 · 장치 없이, 함께 발견하는 자연상수</p><button class="plain" id="sourceOpen">원고와 수학적 근거</button></footer>
+</main>
+<dialog id="roomDialog"><form id="roomForm"><button class="close" type="button" data-close="roomDialog" aria-label="닫기">×</button><p class="eyebrow" id="dialogEyebrow">LIVE CLASSROOM</p><h2 id="dialogTitle">함께 실험하기</h2><label for="nickname">별명</label><input id="nickname" maxlength="16" placeholder="예: 오일러 선생님" required autocomplete="nickname"><div id="codeWrap"><label for="roomCode">참가 코드</label><input id="roomCode" maxlength="6" pattern="[A-Fa-f0-9]{6}" placeholder="6자리 코드" autocomplete="off"></div><label class="demo-option"><input type="checkbox" id="demoMode"> 같은 브라우저에서만 리허설하기</label><p class="note">온라인 방은 인터넷 연결이 필요합니다. 별명과 실험 집계가 방 참가자들에게 공유됩니다.</p><button class="primary" id="roomSubmit" type="submit">참여하기</button><p id="roomError" role="alert"></p></form></dialog>
+<dialog id="infoDialog"><button class="close" data-close="infoDialog" aria-label="닫기">×</button><div id="infoContent"></div></dialog>
+<noscript>이 실험실은 JavaScript를 켜야 사용할 수 있습니다.</noscript>
+</body></html>

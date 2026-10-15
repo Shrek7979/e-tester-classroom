@@ -1,0 +1,20 @@
+name: 수업 후기 공유
+description: 선생님들과 진행한 탐구 과정과 발문을 나눕니다.
+title: "[수업 후기] "
+body:
+  - type: input
+    id: setting
+    attributes:
+      label: 수업 또는 연수 상황
+      placeholder: "예: 교사 연수 20명, 30분 활동"
+  - type: textarea
+    id: experience
+    attributes:
+      label: 활동 과정과 관찰
+      description: 실명이나 개인 성적을 제외하고 예상과 결과, 반응을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: prompts
+    attributes:
+      label: 도움이 된 발문과 다음 수업 아이디어

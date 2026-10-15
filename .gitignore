@@ -1,0 +1,17 @@
+.claude/
+.vercel/
+node_modules/
+dist/
+.firebase/
+.doc-qa/
+.verification/
+*.docx
+*.pdf
+*.pptx
+*.hwp
+*.hwpx
+*.py
+*.log
+.env
+.env.*
+!.env.example

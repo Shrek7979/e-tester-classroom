@@ -1,0 +1,25 @@
+name: 개선 제안과 오류 제보
+description: 앱을 수업에 더 잘 활용하기 위한 의견을 남깁니다.
+title: "[개선] "
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 종류
+      options:
+        - 개선 제안
+        - 오류 제보
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: 상황과 제안
+      description: 어떤 문제가 있고 어떻게 바뀌면 좋을지 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 순서와 사용 환경
+      placeholder: "예: 아이폰 Safari에서 방 참가 후 1000회 버튼을 누르면…"
