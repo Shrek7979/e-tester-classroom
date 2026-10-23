@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이항분포와 정규분포 비교 시뮬레이터</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: "Malgun Gothic", "맑은 고딕", "Noto Sans KR", Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fafc, #e0f2fe 45%, #fff7ed);
+      color: #0f172a;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 18px 22px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 30px;
+      color: #1e3a8a;
+      letter-spacing: -0.6px;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 15px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: #eff6ff;
+      padding: 7px;
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .tab-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #1e3a8a;
+      background: transparent;
+      cursor: pointer;
+      transition: 0.18s;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 26px 20px 38px;
+    }
+
+    .tab-panel { display: none; animation: fadeIn 0.25s ease; }
+    .tab-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fffef7, #fefce8);
+      border: 1px solid #fde68a;
+      border-radius: 32px;
+      padding: 42px;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: 38px;
+      color: #1e3a8a;
+      letter-spacing: -0.8px;
+    }
+
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 880px;
+      line-height: 1.75;
+      color: #334155;
+      font-size: 18px;
+    }
+
+    .info-grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .info-card, .question-box, .panel, .visual-area, .mission-title-box {
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+    }
+
+    .info-card {
+      padding: 24px;
+    }
+
+    .info-card h3, .question-box h2, .panel h2 {
+      margin: 0 0 12px;
+      color: #1d4ed8;
+      font-size: 22px;
+    }
+
+    .info-card p, .info-card li {
+      line-height: 1.7;
+      color: #334155;
+      font-size: 16px;
+    }
+
+    .info-card ul, .info-card ol { margin: 0; padding-left: 22px; }
+.formula-box{
+  background: transparent;
+  padding: 0;
+  border: none;
+  text-align: center;
+  margin-top: 20px;
+}
+    .formula-image{
+  width: 85%;
+  max-width: 520px;
+  display: block;
+  margin: 0 auto;
+}
+    .highlight {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 9px;
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 900;
+    }
+
+    .start-box {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .start-box b {
+      color: #92400e;
+      font-size: 20px;
+    }
+
+    .start-box p {
+      margin: 6px 0 0;
+      color: #78350f;
+      line-height: 1.55;
+    }
+
+    .primary-link {
+      border: none;
+      background: #f97316;
+      color: white;
+      font-weight: 1000;
+      font-size: 16px;
+      border-radius: 999px;
+      padding: 14px 22px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(249, 115, 22, 0.25);
+    }
+
+    .experiment-title, .mission-title-box {
+      margin: 0 0 18px;
+      padding: 26px;
+    }
+
+    .experiment-title {
+      border-radius: 24px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+    }
+
+    .experiment-title h2, .mission-title-box h2 {
+      margin: 0;
+      font-size: 30px;
+      color: #1e3a8a;
+    }
+
+    .experiment-title p, .mission-title-box p {
+      margin: 9px 0 0;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .mission-title-box {
+      background: linear-gradient(135deg, #fef3c7, #ffedd5);
+      border: 1px solid #fdba74;
+      text-align: center;
+    }
+
+    .mission-title-box h2 { color: #9a3412; }
+
+    .mission-box-big {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 22px;
+      background: white;
+      border: 2px dashed #fb923c;
+      color: #9a3412;
+      font-weight: 900;
+      font-size: 24px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .panel { padding: 22px; }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: 800;
+      color: #334155;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .value {
+      font-weight: 900;
+      color: #dc2626;
+    }
+
+    .control-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+   .control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(148,163,184,0.18);
+  filter: brightness(0.98);
+}
+
+    .start { background: #dbeafe; color: #1e3a8a; }
+    .many { background: #dcfce7; color: #166534; }
+    .reset { background: #f1f5f9; color: #475569; }
+    .capture { background: #f1f5f9; color: #475569; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      padding: 13px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #475569;
+      font-weight: 800;
+    }
+
+    .stat-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      color: #1d4ed8;
+    }
+
+    .score-card {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ecfdf5, #dcfce7);
+      border: 1px solid #86efac;
+      text-align: center;
+      color: #166534;
+      font-weight: 900;
+    }
+
+    .score-card .score {
+      display: block;
+      font-size: 42px;
+      margin-top: 6px;
+      color: #15803d;
+    }
+
+    .concept {
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 16px;
+      background: #eff6ff;
+      line-height: 1.6;
+      font-size: 15px;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    .auto-question-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid #bae6fd;
+      color: #0c4a6e;
+      line-height: 1.65;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .auto-question-box b {
+      display: block;
+      color: #0369a1;
+      margin-bottom: 6px;
+      font-size: 17px;
+    }
+
+    .visual-area {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      background: white;
+      border-radius: 18px;
+      border: 1px solid #cbd5e1;
+    }
+
+    #compareCanvas, #missionCanvas {
+      height: 620px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 14px;
+      font-weight: 800;
+      color: #334155;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-color {
+      width: 18px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .binomial-color { background: #60a5fa; }
+    .normal-color { background: #dc2626; }
+    .mean-color { background: #16a34a; }
+
+    .question-box {
+      margin: 20px 0 0;
+      padding: 22px 28px;
+    }
+
+    .questions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .q {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 14px;
+      border-radius: 12px;
+      line-height: 1.55;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .capture-guide {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    footer {
+      padding: 22px;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .header-inner { justify-content: center; text-align: center; }
+      .tabs { width: 100%; justify-content: center; }
+      .container { grid-template-columns: 1fr; }
+      .info-grid, .questions { grid-template-columns: 1fr; }
+      .hero h2 { font-size: 28px; }
+      #compareCanvas, #missionCanvas { height: 460px; }
+    }
+  
+
+    /* 실험 1: 갈톤보드 결과와 정규분포 비교 */
+    .exp1-layout {
+      max-width: 1260px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+
+    .exp1-card, .exp1-mission-card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 24px;
+      box-shadow: 0 16px 40px rgba(15,23,42,0.12);
+    }
+
+    .exp1-card { padding: 18px; }
+    .exp1-canvas-grid { display: grid; grid-template-rows: auto auto; gap: 16px; }
+
+    #boardCanvas { height: 430px; }
+    #compareCanvas { height: 350px; }
+
+    .green { background: #16a34a; color: white; }
+    .orange { background: #ffedd5; color: #9a3412; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 800;
+      color: #334155;
+    }
+
+    .toggle-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #2563eb;
+    }
+
+    .score-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+      text-align: center;
+    }
+
+    .score-label {
+      font-size: 15px;
+      color: #475569;
+      font-weight: 900;
+    }
+
+    .score {
+      font-size: 48px;
+      line-height: 1.1;
+      color: #1d4ed8;
+      font-weight: 1000;
+      margin-top: 4px;
+    }
+
+    .score-comment {
+      margin-top: 6px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .note {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      line-height: 1.55;
+      background: #fff7ed;
+      color: #9a3412;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #334155;
+      font-weight: 800;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .swatch { width: 18px; height: 10px; border-radius: 99px; display: inline-block; }
+    .blue { background: #93c5fd; border: 1px solid #3b82f6; }
+    .red { background: #ef4444; }
+    .purple { background: #7c3aed; }
+
+    .exp1-mission-card {
+      max-width: 1260px;
+      margin: 20px auto 0;
+      padding: 22px 28px;
+    }
+
+    .exp1-mission-card h2 {
+      margin: 0 0 14px;
+      color: #1d4ed8;
+      font-size: 21px;
+    }
+
+    .exp1-missions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .exp1-mission {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 14px;
+      border-radius: 12px;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    @media (max-width: 900px) {
+      .exp1-layout { grid-template-columns: 1fr; }
+      .exp1-missions { grid-template-columns: 1fr; }
+      #boardCanvas { height: 360px; }
+      #compareCanvas { height: 300px; }
+    }
+
+    .condition-table-box {
+      margin: 20px 0 0;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+    }
+
+    .condition-table-box h2 {
+      margin: 0 0 8px;
+      color: #1d4ed8;
+      font-size: 22px;
+    }
+
+    .condition-table-box p {
+      margin: 0 0 16px;
+      color: #475569;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .condition-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      font-size: 15px;
+    }
+
+    .condition-table th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      padding: 13px 10px;
+      border-bottom: 1px solid #bfdbfe;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .condition-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: center;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .condition-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .condition-table .interpretation {
+      text-align: left;
+      line-height: 1.45;
+      min-width: 260px;
+    }
+
+    .empty-row {
+      color: #64748b !important;
+      padding: 22px !important;
+      text-align: center !important;
+    }
+
+    .score-high {
+      color: #15803d !important;
+      font-weight: 1000 !important;
+    }
+
+    .score-mid {
+      color: #ca8a04 !important;
+      font-weight: 1000 !important;
+    }
+
+    .score-low {
+      color: #dc2626 !important;
+      font-weight: 1000 !important;
+    }
+
+  
+    .student-judge-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    .student-judge-box b {
+      display: block;
+      color: #1d4ed8;
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+
+    .student-judge-box p {
+      margin: 4px 0 10px;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .judge-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .judge-btn {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 12px;
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .judge-btn:hover,
+    .judge-btn.selected {
+      background: #2563eb;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .student-choice {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .discovery-box {
+      margin: 20px 0 0;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+    }
+
+    .discovery-box h2 {
+      margin: 0 0 14px;
+      color: #1d4ed8;
+      font-size: 22px;
+    }
+
+.discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 15px;
+}
+    .discovery-card {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 14px;
+      border-radius: 12px;
+      line-height: 1.55;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .discovery-card b {
+      display: block;
+      color: #1e3a8a;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .teacher-reveal {
+      margin-top: 18px;
+    }
+
+    .rule-reveal {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .rule-reveal.active {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .discovery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+    .activity-guide-box {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 22px;
+      background: #ffffff;
+      border: 1px solid #fdba74;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      text-align: left;
+    }
+
+    .activity-guide-box h3 {
+      margin: 0 0 8px;
+      color: #9a3412;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .activity-guide-box p {
+      margin: 0 0 14px;
+      color: #7c2d12;
+      line-height: 1.55;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .activity-guide-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .guide-btn {
+      width: 100%;
+      min-height: 72px;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: 1000;
+      cursor: pointer;
+      line-height: 1.35;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .guide-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .guide-btn span {
+      font-size: 13px;
+      font-weight: 800;
+      opacity: 0.95;
+    }
+
+    .guide-blue { background: #2563eb; }
+    .guide-green { background: #16a34a; }
+    .guide-purple { background: #7c3aed; }
+    .guide-gray { background: #64748b; }
+
+    @media (max-width: 900px) {
+      .activity-guide-buttons {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+  
+    .activity-guide-buttons {
+      max-width: 720px;
+      margin: 0 auto;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .visual-area .student-judge-box {
+      margin-top: 0;
+      padding: 18px;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    .visual-area .student-judge-box b {
+      display: block;
+      color: #1d4ed8;
+      font-size: 18px;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .visual-area .student-judge-box p {
+      margin: 4px 0 12px;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
+    }
+
+    .visual-area .judge-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .record-action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 0 0 16px;
+    }
+
+    .record-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      color: white;
+      font-size: 16px;
+      font-weight: 1000;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .record-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .record-save { background: #7c3aed; }
+    .record-reset { background: #64748b; }
+
+    @media (max-width: 900px) {
+      .activity-guide-buttons,
+      .visual-area .judge-buttons,
+      .record-action-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+    .judge-save-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 14px;
+      background: #7c3aed;
+      color: white;
+      font-size: 16px;
+      font-weight: 1000;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .judge-save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .table-flash {
+      outline: 4px solid rgba(124, 58, 237, 0.35);
+      transition: outline 0.2s;
+    }
+
+  
+    .hero::after {
+      display: none;
+    }
+
+    .intro-image-box {
+      margin-top: 26px;
+      padding: 16px;
+      border-radius: 24px;
+      background: #ffffff;
+      border: 1px solid #fde68a;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .intro-image-box img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+    }
+
+  
+    .distribution-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .distribution-compare-image {
+      width: 100%;
+      display: block;
+      margin-top: 10px;
+      border-radius: 18px;
+      border: 1px solid #dbeafe;
+      background: white;
+    }
+
+    .observation-wide {
+      grid-column: 1 / -1;
+    }
+
+    .observation-wide ol {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding-left: 0;
+      list-style-position: inside;
+    }
+
+    .observation-wide li {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 13px;
+      border-radius: 12px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .observation-wide ol {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+    /* 관찰 포인트: 2 x 2 배치 강제 적용 */
+    .observation-wide {
+      grid-column: 1 / -1 !important;
+    }
+
+    .observation-wide ol {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+      padding-left: 0 !important;
+      margin: 0 !important;
+      list-style-position: inside !important;
+    }
+
+    .observation-wide li {
+      background: #f8fafc !important;
+      border-left: 5px solid #2563eb !important;
+      padding: 14px !important;
+      border-radius: 12px !important;
+      line-height: 1.55 !important;
+      font-weight: 700 !important;
+    }
+
+    @media (max-width: 700px) {
+      .observation-wide ol {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+  
+
+    /* 실험 3: 정규근사 예측 게임 */
+    .game-shell { max-width: 1240px; margin: 0 auto; }
+    .game-grid { display:grid; grid-template-columns: 360px 1fr; gap:20px; align-items:stretch; }
+    .game-card, .map-card, .final-card {
+      background:rgba(255,255,255,.96); border:1px solid rgba(148,163,184,.35);
+      border-radius:24px; box-shadow:0 16px 40px rgba(15,23,42,.10); padding:22px;
+    }
+    .round-badge { display:inline-block; padding:7px 12px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-weight:1000; }
+    .round-title { margin:12px 0 6px; font-size:25px; color:#1e3a8a; }
+    .round-desc { color:#475569; line-height:1.6; font-weight:700; min-height:52px; }
+    .given-box { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .given-item { background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:15px; text-align:center; font-weight:900; color:#475569; }
+    .given-item strong { display:block; margin-top:4px; color:#1d4ed8; font-size:28px; }
+    .predict-title { margin:18px 0 9px; font-weight:1000; color:#0f172a; text-align:center; }
+    .predict-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .predict-btn { border:none; border-radius:15px; padding:14px 10px; font-size:15px; font-weight:1000; cursor:pointer; background:#dbeafe; color:#1e3a8a; transition:.15s; }
+    .predict-btn:hover { transform:translateY(-2px); box-shadow:0 7px 16px rgba(15,23,42,.12); }
+    .predict-btn.selected { background:#2563eb; color:white; }
+    .reveal-btn { width:100%; margin-top:12px; border:none; border-radius:15px; padding:14px; font-size:16px; font-weight:1000; cursor:pointer; background:#f97316; color:white; }
+    .reveal-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .game-feedback { margin-top:14px; border-radius:16px; padding:15px; line-height:1.6; font-weight:800; background:#f8fafc; color:#475569; }
+    .game-feedback.good { background:#ecfdf5; color:#166534; border:1px solid #86efac; }
+    .game-feedback.bad { background:#fff7ed; color:#9a3412; border:1px solid #fdba74; }
+    .next-btn { width:100%; margin-top:10px; border:none; border-radius:15px; padding:13px; font-size:15px; font-weight:1000; cursor:pointer; background:#7c3aed; color:white; display:none; }
+    .game-visual { position:relative; min-height:620px; }
+    #gameCanvas { width:100%; height:620px; background:white; border-radius:18px; border:1px solid #cbd5e1; }
+    .canvas-cover { position:absolute; inset:22px; border-radius:18px; display:flex; align-items:center; justify-content:center; text-align:center; padding:30px; background:linear-gradient(135deg,#eff6ff,#f5f3ff); border:2px dashed #93c5fd; color:#1e3a8a; font-size:22px; line-height:1.7; font-weight:1000; z-index:3; }
+    .reveal-stats { margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .reveal-stat { background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; text-align:center; color:#475569; font-weight:800; }
+    .reveal-stat strong { display:block; margin-top:4px; color:#1d4ed8; font-size:20px; }
+    .map-card { margin-top:20px; }
+    .map-card h2, .final-card h2 { margin:0 0 8px; color:#1d4ed8; }
+    .map-help { color:#475569; line-height:1.6; font-weight:700; margin-bottom:14px; }
+    .approx-map { overflow-x:auto; }
+    .approx-map table { width:100%; border-collapse:separate; border-spacing:6px; min-width:720px; }
+    .approx-map th { color:#475569; font-size:13px; padding:6px; }
+    .map-cell { padding:13px 6px; border-radius:12px; text-align:center; font-weight:1000; border:2px solid transparent; }
+    .map-cell.good { background:#dcfce7; color:#166534; }
+    .map-cell.bad { background:#fee2e2; color:#991b1b; }
+    .map-cell.current { border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.15); }
+    .map-cell.locked { background:#f1f5f9; color:#94a3b8; }
+    .map-legend { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:10px; font-weight:800; color:#475569; }
+    .final-card { margin-top:20px; background:linear-gradient(135deg,#fff7ed,#fffbeb); border-color:#fdba74; }
+    .final-question { margin-top:12px; padding:16px; border-radius:16px; background:white; color:#7c2d12; font-weight:900; line-height:1.7; }
+    .final-rule { display:none; margin-top:12px; padding:16px; border-radius:16px; background:#ecfdf5; border:1px solid #86efac; color:#166534; font-weight:1000; line-height:1.7; text-align:center; font-size:18px; }
+    .final-rule.active { display:block; }
+    .game-progress { margin:12px 0 2px; height:10px; border-radius:999px; background:#e2e8f0; overflow:hidden; }
+    .game-progress > div { height:100%; background:#7c3aed; width:0; transition:.25s; }
+    @media (max-width:900px){ .game-grid{grid-template-columns:1fr;} .game-visual{min-height:460px;} #gameCanvas{height:460px;} .reveal-stats{grid-template-columns:1fr;} }
+
+</style>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+<header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>이항분포와 정규분포 비교 시뮬레이터</h1>
+        <p>막대그래프와 곡선을 겹쳐 보며 정규근사의 조건을 탐구하는 수업용 도구</p>
+      </div>
+      <nav class="tabs" aria-label="페이지 탭">
+        <button class="tab-btn active" onclick="showTab('intro', this)">소개</button>
+        <button class="tab-btn" onclick="showTab('compare', this)">실험 1</button>
+        <button class="tab-btn" onclick="showTab('mission', this)">실험 2</button>
+        <button class="tab-btn" onclick="showTab('game', this)">실험 3</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+<section id="intro" class="tab-panel active">
+      <div class="hero">
+        <h2>이항분포는 언제 정규분포와 닮아질까?</h2>
+        <p>
+          갈톤보드 실험에서 보았던 막대그래프는 이항분포로 설명할 수 있습니다.</br>
+          이번 수업에서는 이항분포의 막대그래프 위에 정규분포 곡선을 겹쳐 보며,
+          어떤 조건에서 두 분포가 서로</br> 비슷해지는지 직접 확인합니다.
+        </p>
+
+        <div class="intro-image-box">
+          <img src="binomial_normal_intro.png" alt="이항분포와 정규분포 그래프 비교 그림">
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>이 시뮬레이터는 무엇인가요?</h3>
+          <p>
+            시행 횟수 <span class="highlight">n</span>과 성공 확률 <span class="highlight">p</span>를 조절하면</br>
+            이항분포의 확률막대와 정규분포 근사곡선이 동시에 그려집니다.</br>
+            학생들은 두 그래프가 언제 잘 겹치는지 관찰하며 정규근사의 의미를</br> 이해할 수 있습니다.
+          </p>
+        </article>
+
+        <article class="info-card">
+          <h3>핵심 아이디어</h3>
+          <ul>
+            <li>n이 작으면 이항분포의 막대가 거칠고 뚝뚝 끊겨 보입니다.</li>
+            <li>n이 커지고 p가 0.5 근처이면 종 모양에 가까워집니다.</li>
+            <li>p가 0 또는 1에 가까우면 </br>한쪽으로 치우쳐 정규분포와 덜 닮아 보입니다.</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <h3>수학적 연결</h3>
+          <p>
+            이항분포의 평균과 표준편차를 이용해 정규분포를 겹쳐 그립니다.
+          </p>
+        <div class="formula-box">
+  <img src="binomial_formula_theme.png" class="formula-image">
+</div>        </article>
+
+        <article class="info-card distribution-card">
+          <h3>이항분포와 정규분포</h3>
+          <img src="distribution_compare.png"
+               class="distribution-compare-image"
+               alt="이항분포와 정규분포 비교 그림">
+        </article>
+
+        <article class="info-card observation-wide">
+          <h3>관찰 포인트</h3>
+          <ol>
+            <li>n을 키우면 막대그래프가 어떻게 변하나요?</li>
+            <li>p를 0.5에서 멀리 움직이면 그래프는 어떻게 치우치나요?</li>
+            <li>평균선 μ는 그래프의 어느 위치를 지나가나요?</li>
+            <li>닮음 점수가 높아지는 조건은 무엇인가요?</li>
+          </ol>
+        </article>
+      </div>
+
+      <div class="start-box">
+        <div>
+          <b>그래프를 겹쳐 비교해 볼까요?</b>
+          <p>n과 p를 직접 바꾸며 이항분포와 정규분포가 얼마나 비슷해지는지 관찰해 봅시다.</p>
+        </div>
+        <button class="primary-link" onclick="goExperiment()">실험하러 가기</button>
+      </div>
+    </section>
+
+
+    <section id="compare" class="tab-panel">
+      <div class="experiment-title">
+        <h2>실험 1: 갈톤보드 결과와 정규분포 비교</h2>
+        <p>실제로 떨어뜨린 공의 분포와 이론적 정규분포 곡선을 겹쳐 보고, 닮음 점수를 확인해 봅시다.</p>
+      </div>
+
+<main class="exp1-layout">
+    <section class="panel">
+      <h2>실험 설정</h2>
+
+      <label>갈톤보드 층 수 n: <span class="value" id="rowsValue">10</span></label>
+      <input id="rows" type="range" min="4" max="16" value="10" />
+
+      <label>오른쪽으로 갈 확률 p: <span class="value" id="probValue">0.50</span></label>
+      <input id="prob" type="range" min="1" max="99" value="50" />
+
+      <label>한 번에 떨어뜨릴 공 개수: <span class="value" id="ballsValue">100</span></label>
+      <input id="balls" type="range" min="10" max="500" step="10" value="100" />
+
+      <button class="control-btn start" onclick="dropAnimated()">공 떨어뜨리기</button>
+      <button class="control-btn many" onclick="dropFast()">대량 실험 빠르게 추가</button>
+      <button class="control-btn orange" onclick="autoExperiment()">반복 실험 1000개 추가</button>
+      <button class="control-btn reset" onclick="resetExperiment()">초기화</button>
+
+      <div class="toggle-row"><span>실험 결과 곡선 보기</span><input id="showExpCurve" type="checkbox" checked /></div>
+      <div class="toggle-row"><span>정규분포 곡선 보기</span><input id="showNormal" type="checkbox" checked /></div>
+      <div class="toggle-row"><span>평균선 보기</span><input id="showMean" type="checkbox" checked /></div>
+
+      <div class="score-box">
+        <div class="score-label">정규분포 닮음 점수</div>
+        <div class="score" id="scoreValue">-</div>
+        <div class="score-comment" id="scoreComment">공을 떨어뜨려 보세요.</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">총 공 수<strong id="totalValue">0</strong></div>
+        <div class="stat">이론 평균 np<strong id="theoryMean">5.00</strong></div>
+        <div class="stat">실험 평균<strong id="expMean">-</strong></div>
+        <div class="stat">표준편차 σ<strong id="sdValue">1.58</strong></div>
+      </div>
+
+      <div class="note">
+        이 사이트는 갈톤보드에서 실제로 나온 결과를 확률분포로 바꾸고, 같은 평균과 표준편차를 갖는 정규분포와 비교합니다. 공의 수가 많아질수록 우연한 흔들림이 줄어들어 닮음 점수가 대체로 높아집니다.
+      </div>
+    </section>
+
+    <section class="exp1-card exp1-canvas-grid">
+      <canvas id="boardCanvas" width="880" height="430"></canvas>
+      <div>
+        <canvas id="compareCanvas" width="880" height="350"></canvas>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch blue"></span>실험 결과 막대</div>
+          <div class="legend-item"><span class="swatch purple"></span>실험 결과 곡선</div>
+          <div class="legend-item"><span class="swatch red"></span>정규분포 곡선</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="exp1-mission-card">
+    <h2>탐구 미션</h2>
+    <div class="exp1-missions">
+      <div class="exp1-mission"><b>미션 1</b><br />공의 수를 늘릴수록 닮음 점수가 어떻게 변하는지 관찰하세요.</div>
+      <div class="exp1-mission"><b>미션 2</b><br />p=0.5일 때와 p=0.2일 때, 어느 쪽이 더 정규분포처럼 보이는지 비교하세요.</div>
+      <div class="exp1-mission"><b>미션 3</b><br />층 수 n을 크게 하면 실험 결과 곡선은 어떻게 달라지는지 설명하세요.</div>
+      <div class="exp1-mission"><b>미션 4</b><br />닮음 점수가 낮게 나오는 상황을 만들고, 그 이유를 적어보세요.</div>
+    </div>
+  </section>
+    </section>
+
+
+
+
+<section id="mission" class="tab-panel">
+  <div class="mission-title-box">
+    <h2>실험 2: 언제부터 정규분포처럼 보일까?</h2>
+    <p>공식 조건을 먼저 외우기보다, 그래프를 직접 관찰하고 “비슷해지는 순간”을 찾아봅시다.</p>
+    <div class="mission-box-big">
+      🎯 탐구 목표: <strong>눈으로 관찰한 패턴</strong>을 바탕으로 정규근사의 조건을 발견하기
+    </div>
+
+    <div class="activity-guide-box">
+      <h3>오늘 할 활동</h3>
+      <p>아래 버튼을 눌러 조건을 비교하고, 그래프를 관찰한 뒤 기록표에 저장해 봅시다.</p>
+
+      <div class="activity-guide-buttons">
+        <button class="guide-btn guide-blue" onclick="setMissionAStart()">미션 1<br><span>n을 키우며 비교</span></button>
+        <button class="guide-btn guide-green" onclick="setMissionBStart()">미션 2<br><span>p를 바꾸며 비교</span></button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="panel">
+      <h2>관찰 실험 설정</h2>
+
+      <label>시행 횟수 n: <span class="value" id="mNValue">20</span></label>
+      <input id="mNInput" type="range" min="2" max="120" value="20" />
+
+      <label>성공 확률 p: <span class="value" id="mPValue">0.50</span></label>
+      <input id="mPInput" type="range" min="1" max="99" value="50" />
+
+      <div class="stats">
+        <div class="stat-card">평균 μ<strong id="mMeanValue">-</strong></div>
+        <div class="stat-card">표준편차 σ<strong id="mSdValue">-</strong></div>
+        <div class="stat-card">np<strong id="mNpValue">-</strong></div>
+        <div class="stat-card">n(1-p)<strong id="mNqValue">-</strong></div>
+      </div>
+
+      <div class="score-card">
+        컴퓨터의 닮음 점수
+        <span class="score" id="mSimilarityValue">-</span>
+      </div>
+
+      <div class="concept" id="missionResult">
+        먼저 그래프 모양을 보고, 아래에서 학생 판단을 선택해 보세요.
+      </div>
+
+      <button class="control-btn capture" onclick="captureTab('mission', 'normal-approximation-observation.png')">📷 결과 저장하기</button>
+      <div class="capture-guide">현재 실험 2 화면 전체를 이미지로 저장합니다.</div>
+    </section>
+
+    <section class="visual-area">
+      <canvas id="missionCanvas" width="900" height="620"></canvas>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-color binomial-color"></span> 이항분포 막대</span>
+        <span class="legend-item"><span class="legend-color normal-color"></span> 정규분포 곡선</span>
+        <span class="legend-item"><span class="legend-color mean-color"></span> 평균 μ</span>
+      </div>
+
+      <div class="student-judge-box">
+        <b>학생 판단</b>
+        <p>두 그래프가 얼마나 비슷해 보이나요?</p>
+        <div class="judge-buttons">
+          <button type="button" class="judge-btn" onclick="setStudentJudgement('매우 다름')">매우 다름</button>
+          <button type="button" class="judge-btn" onclick="setStudentJudgement('조금 비슷')">조금 비슷</button>
+          <button type="button" class="judge-btn" onclick="setStudentJudgement('거의 같다')">거의 같다</button>
+        </div>
+        <div class="student-choice" id="studentChoice">아직 선택하지 않았습니다.</div>
+        <button type="button" class="judge-save-btn" onclick="saveObservation()">현재 관찰 저장</button>
+      </div>
+
+    </section>
+  </main>
+
+  <section class="condition-table-box">
+    <h2>관찰 기록표</h2>
+    <p>학생의 눈으로 판단한 결과와 컴퓨터의 닮음 점수를 비교하면서, 정규근사가 잘 되는 조건을 찾아봅시다.</p>
+    <div class="record-action-row">
+      <button class="record-btn record-save" onclick="saveObservation()">현재 관찰 저장</button>
+      <button class="record-btn record-reset" onclick="clearObservationTable()">관찰 기록 초기화</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="condition-table">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>n</th>
+            <th>p</th>
+            <th>학생 판단</th>
+            <th>닮음 점수</th>
+            <th>그래프 모양 해석</th>
+          </tr>
+        </thead>
+        <tbody id="observationTableBody">
+          <tr>
+            <td colspan="6" class="empty-row">아직 저장된 관찰이 없습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="discovery-box">
+    <h2>마지막 발견 정리</h2>
+    <div class="discovery-grid">
+      <div class="discovery-card">
+        <b>1단계</b>
+        p=0.5로 고정하고 n을 키우면 그래프가 어떻게 변하나요?
+      </div>
+      <div class="discovery-card">
+        <b>2단계</b>
+        n을 고정하고 p를 0이나 1에 가깝게 하면 왜 한쪽으로 치우칠까요?
+      </div>
+      <div class="discovery-card">
+        <b>3단계</b>
+        “정규분포처럼 보인다”고 말할 수 있는 조건을 직접 문장으로 써 봅시다.
+      </div>
+    </div>
+
+    <div class="teacher-reveal">
+      <button class="control-btn capture" onclick="toggleRuleReveal()">교사용 조건 힌트 보기 / 숨기기</button>
+      <div class="rule-reveal" id="ruleReveal">
+        통계에서는 보통 <b>np와 n(1-p)가 모두 충분히 클 때</b> 이항분포를 정규분포로 근사하기 좋다고 봅니다.
+        예를 들어 경험적으로 <b>np ≥ 5, n(1-p) ≥ 5</b>를 많이 사용합니다.
+      </div>
+    </div>
+  </section>
+</section>
+
+
+
+<section id="game" class="tab-panel">
+  <div class="mission-title-box">
+    <h2>실험 3: 그래프를 보기 전에 맞혀라!</h2>
+    <p>이번에는 그래프와 닮음 점수를 먼저 보여주지 않습니다. n과 p만 보고 정규근사가 잘 될지 예측해 보세요.</p>
+    <div class="mission-box-big">🧠 예측 → 그래프 공개 → 이유 확인 → 규칙 발견</div>
+  </div>
+
+  <div class="game-shell">
+    <div class="game-grid">
+      <section class="game-card">
+        <span class="round-badge" id="roundBadge">ROUND 1 / 6</span>
+        <div class="game-progress"><div id="gameProgressBar"></div></div>
+        <h2 class="round-title" id="roundTitle">첫 번째 예측</h2>
+        <div class="round-desc" id="roundDesc"></div>
+
+        <div class="given-box">
+          <div class="given-item">시행 횟수 n<strong id="gameN">-</strong></div>
+          <div class="given-item">성공 확률 p<strong id="gameP">-</strong></div>
+        </div>
+
+        <div class="predict-title">정규분포로 근사하기에 어떨까요?</div>
+        <div class="predict-buttons">
+          <button class="predict-btn" data-predict="yes" onclick="chooseGamePrediction('yes')">👍 잘 될 것 같다</button>
+          <button class="predict-btn" data-predict="no" onclick="chooseGamePrediction('no')">🤔 잘 안 될 것 같다</button>
+        </div>
+        <button class="reveal-btn" id="gameRevealBtn" onclick="revealGameRound()" disabled>그래프 공개하기</button>
+
+        <div class="game-feedback" id="gameFeedback">n과 p만 보고 먼저 예측해 보세요. np와 n(1-p)는 그래프를 공개한 뒤 확인할 수 있습니다.</div>
+        <button class="next-btn" id="gameNextBtn" onclick="nextGameRound()">다음 ROUND</button>
+      </section>
+
+      <section class="game-card game-visual">
+        <canvas id="gameCanvas" width="900" height="620"></canvas>
+        <div class="canvas-cover" id="gameCanvasCover">🔒 그래프는 아직 비밀입니다.<br>왼쪽에서 먼저 예측하세요!</div>
+        <div class="reveal-stats" id="gameRevealStats" style="display:none;">
+          <div class="reveal-stat">np<strong id="gameNp">-</strong></div>
+          <div class="reveal-stat">n(1-p)<strong id="gameNq">-</strong></div>
+          <div class="reveal-stat">닮음 점수<strong id="gameScore">-</strong></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="map-card">
+      <h2>🗺️ 정규근사 지도</h2>
+      <div class="map-help">ROUND를 진행할수록 지도가 열립니다. 초록 영역과 빨간 영역의 경계가 어떤 규칙으로 만들어지는지 찾아보세요.</div>
+      <div class="approx-map" id="approxMap"></div>
+      <div class="map-legend"><span>🟢 경험적 조건을 만족</span><span>🔴 경험적 조건을 만족하지 않음</span><span>🟣 현재 ROUND</span></div>
+    </section>
+
+    <section class="final-card">
+      <h2>🔐 FINAL MISSION: 경계의 규칙을 찾아라</h2>
+      <div class="final-question">초록색 영역에 있는 (n, p)의 공통점은 무엇인가요? 단순히 “n이 크다”가 아니라 <b>np</b>와 <b>n(1-p)</b>를 이용하여 한 문장으로 설명해 보세요.</div>
+      <button class="control-btn capture" id="gameRuleBtn" onclick="toggleGameRule()" disabled>6개 ROUND를 모두 마치면 규칙 확인</button>
+      <div class="final-rule" id="gameRuleBox">발견한 규칙과 비교해 봅시다.<br><b>np ≥ 5 이고 n(1-p) ≥ 5</b>이면 정규근사를 고려하기 좋은 경험적 기준으로 볼 수 있습니다.<br>즉, n 자체보다 성공과 실패의 기대 횟수가 모두 충분히 큰지가 중요합니다.</div>
+    </section>
+  </div>
+</section>
+
+  <footer>이항분포와 정규분포 비교 시뮬레이터 · 수업용 확률·통계 도구</footer>
+
+  <script>
+
+    function showTab(tabId, button) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      button.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      setTimeout(() => {
+        if (tabId === 'compare') drawAll();
+        if (tabId === 'mission') drawMission();
+        if (tabId === 'game') initGameRound();
+      }, 50);
+    }
+
+    function goExperiment() {
+      const btn = document.querySelectorAll('.tab-btn')[1];
+      showTab('compare', btn);
+    }
+
+
+    const boardCanvas = document.getElementById('boardCanvas');
+    const boardCtx = boardCanvas.getContext('2d');
+    const compareCanvas = document.getElementById('compareCanvas');
+    const cmpCtx = compareCanvas.getContext('2d');
+
+    const rowsInput = document.getElementById('rows');
+    const probInput = document.getElementById('prob');
+    const ballsInput = document.getElementById('balls');
+    const showExpCurveInput = document.getElementById('showExpCurve');
+    const showNormalInput = document.getElementById('showNormal');
+    const showMeanInput = document.getElementById('showMean');
+
+    let counts = [];
+    let stackedBalls = [];
+    let fallingBalls = [];
+    let totalBalls = 0;
+    let animationRunning = false;
+
+    function settings() {
+      return {
+        rows: Number(rowsInput.value),
+        p: Number(probInput.value) / 100,
+        balls: Number(ballsInput.value),
+        showExpCurve: showExpCurveInput.checked,
+        showNormal: showNormalInput.checked,
+        showMean: showMeanInput.checked
+      };
+    }
+
+    function geometry() {
+      const s = settings();
+      const w = boardCanvas.width;
+      const h = boardCanvas.height;
+      const topY = 42;
+      const pegBottomY = h - 145;
+      const slotTopY = h - 120;
+      const slotBottomY = h - 22;
+      const rowGap = (pegBottomY - topY) / s.rows;
+      const colGap = Math.min(46, (w - 150) / (s.rows + 1));
+      const centerX = w / 2;
+      const ballR = Math.max(3.8, Math.min(6.2, colGap * 0.13));
+      return { rows: s.rows, w, h, topY, pegBottomY, slotTopY, slotBottomY, rowGap, colGap, centerX, ballR };
+    }
+
+    function posAt(row, right) {
+      const g = geometry();
+      return { x: g.centerX + (right - row / 2) * g.colGap, y: g.topY + row * g.rowGap };
+    }
+
+    function slotCenter(k) {
+      const g = geometry();
+      return g.centerX + (k - g.rows / 2) * g.colGap;
+    }
+
+    function makePath(rows, p) {
+      let right = 0;
+      const points = [posAt(0, 0)];
+      for (let r = 1; r <= rows; r++) {
+        if (Math.random() < p) right++;
+        points.push(posAt(r, right));
+      }
+      return { finalSlot: right, points };
+    }
+
+    function addStackedBall(slot) {
+      const g = geometry();
+      const already = counts[slot];
+      const smallR = Math.max(2.1, g.ballR * 0.58);
+      const ballsPerLayer = Math.max(3, Math.floor((g.colGap - 4) / (smallR * 1.45)));
+      const layer = Math.floor(already / ballsPerLayer);
+      const idx = already % ballsPerLayer;
+      const spacingX = smallR * 1.45;
+      const spacingY = smallR * 1.25;
+      const layerWidth = (ballsPerLayer - 1) * spacingX;
+      const jitter = (layer % 2) * smallR * 0.3;
+      const x = slotCenter(slot) - layerWidth / 2 + idx * spacingX + jitter;
+      const y = g.slotBottomY - smallR - layer * spacingY;
+      stackedBalls.push({ x, y, r: smallR, slot });
+      counts[slot]++;
+      totalBalls++;
+    }
+
+    function dropAnimated() {
+      if (animationRunning) return;
+      const s = settings();
+      fallingBalls = [];
+      for (let i = 0; i < s.balls; i++) {
+        const path = makePath(s.rows, s.p);
+        fallingBalls.push({ points: path.points, finalSlot: path.finalSlot, progress: 0, delay: i * 2, finished: false });
+      }
+      animationRunning = true;
+      animate();
+    }
+
+    function dropFast() {
+      const s = settings();
+      for (let i = 0; i < s.balls; i++) addStackedBall(makePath(s.rows, s.p).finalSlot);
+      drawAll();
+    }
+
+    function autoExperiment() {
+      const s = settings();
+      for (let i = 0; i < 1000; i++) addStackedBall(makePath(s.rows, s.p).finalSlot);
+      drawAll();
+    }
+
+    function resetExperiment(redraw = true) {
+      const s = settings();
+      counts = Array(s.rows + 1).fill(0);
+      stackedBalls = [];
+      fallingBalls = [];
+      totalBalls = 0;
+      animationRunning = false;
+      updateLabels();
+      if (redraw) drawAll();
+    }
+
+    function updateLabels() {
+      const s = settings();
+      document.getElementById('rowsValue').textContent = s.rows;
+      document.getElementById('probValue').textContent = s.p.toFixed(2);
+      document.getElementById('ballsValue').textContent = s.balls;
+    }
+
+    function erf(x) {
+      const sign = x >= 0 ? 1 : -1;
+      x = Math.abs(x);
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+      const t = 1 / (1 + 0.3275911 * x);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
+    }
+
+    function normalCDF(x, mean, sd) {
+      if (sd <= 0) return x < mean ? 0 : 1;
+      return 0.5 * (1 + erf((x - mean) / (sd * Math.sqrt(2))));
+    }
+
+    function normalPDF(x, mean, sd) {
+      if (sd <= 0) return 0;
+      return Math.exp(-0.5 * Math.pow((x - mean) / sd, 2)) / (sd * Math.sqrt(2 * Math.PI));
+    }
+
+    function normalIntervalProb(k, mean, sd) {
+      return normalCDF(k + 0.5, mean, sd) - normalCDF(k - 0.5, mean, sd);
+    }
+
+    function similarityScore() {
+      const s = settings();
+      if (totalBalls === 0) return null;
+      const mean = s.rows * s.p;
+      const sd = Math.sqrt(s.rows * s.p * (1 - s.p));
+      let diff = 0;
+      for (let k = 0; k <= s.rows; k++) {
+        const experimental = counts[k] / totalBalls;
+        const normalApprox = normalIntervalProb(k, mean, sd);
+        diff += Math.abs(experimental - normalApprox);
+      }
+      const overlap = Math.max(0, 1 - diff / 2);
+      return Math.round(overlap * 100);
+    }
+
+    function scoreComment(score) {
+      if (score === null) return '공을 떨어뜨려 보세요.';
+      if (totalBalls < 50) return '공의 수가 적어 우연한 흔들림이 큽니다.';
+      if (score >= 95) return '실험 결과가 정규분포 곡선과 매우 비슷합니다.';
+      if (score >= 90) return '정규분포와 꽤 비슷합니다.';
+      if (score >= 80) return '종 모양은 보이지만 아직 차이가 있습니다.';
+      return '아직 차이가 큽니다. 공 수, n, p를 바꿔 보세요.';
+    }
+
+    function experimentalMean() {
+      if (totalBalls === 0) return null;
+      let sum = 0;
+      for (let k = 0; k < counts.length; k++) sum += k * counts[k];
+      return sum / totalBalls;
+    }
+
+    function updateStats() {
+      const s = settings();
+      const mean = s.rows * s.p;
+      const sd = Math.sqrt(s.rows * s.p * (1 - s.p));
+      const expMean = experimentalMean();
+      const score = similarityScore();
+      document.getElementById('totalValue').textContent = totalBalls;
+      document.getElementById('theoryMean').textContent = mean.toFixed(2);
+      document.getElementById('expMean').textContent = expMean === null ? '-' : expMean.toFixed(2);
+      document.getElementById('sdValue').textContent = sd.toFixed(2);
+      document.getElementById('scoreValue').textContent = score === null ? '-' : score;
+      document.getElementById('scoreComment').textContent = scoreComment(score);
+    }
+
+    function drawBoard() {
+      const g = geometry();
+      boardCtx.clearRect(0, 0, g.w, g.h);
+      boardCtx.fillStyle = 'white';
+      boardCtx.fillRect(0, 0, g.w, g.h);
+      boardCtx.fillStyle = '#1e3a8a';
+      boardCtx.font = 'bold 18px sans-serif';
+      boardCtx.fillText('갈톤보드 낙하 실험', 24, 28);
+
+      boardCtx.strokeStyle = '#dbeafe';
+      boardCtx.lineWidth = 2;
+      boardCtx.beginPath();
+      boardCtx.moveTo(g.centerX, 36);
+      boardCtx.lineTo(g.centerX - g.rows * g.colGap / 2 - 25, g.pegBottomY + 25);
+      boardCtx.moveTo(g.centerX, 36);
+      boardCtx.lineTo(g.centerX + g.rows * g.colGap / 2 + 25, g.pegBottomY + 25);
+      boardCtx.stroke();
+
+      for (let r = 0; r <= g.rows; r++) {
+        for (let c = 0; c <= r; c++) {
+          const p = posAt(r, c);
+          boardCtx.fillStyle = '#334155';
+          boardCtx.beginPath();
+          boardCtx.arc(p.x, p.y, 4.2, 0, Math.PI * 2);
+          boardCtx.fill();
+        }
+      }
+      drawSlots();
+      drawStackedBalls();
+    }
+
+    function drawSlots() {
+      const g = geometry();
+      const left = g.centerX - (g.rows + 1) * g.colGap / 2;
+      const width = (g.rows + 1) * g.colGap;
+      boardCtx.fillStyle = '#f8fafc';
+      boardCtx.fillRect(left, g.slotTopY, width, g.slotBottomY - g.slotTopY + 10);
+      boardCtx.strokeStyle = '#94a3b8';
+      boardCtx.lineWidth = 2;
+      for (let k = 0; k <= g.rows + 1; k++) {
+        const x = g.centerX + (k - (g.rows + 1) / 2) * g.colGap;
+        boardCtx.beginPath();
+        boardCtx.moveTo(x, g.slotTopY);
+        boardCtx.lineTo(x, g.slotBottomY + 8);
+        boardCtx.stroke();
+      }
+      boardCtx.strokeStyle = '#475569';
+      boardCtx.beginPath();
+      boardCtx.moveTo(left, g.slotBottomY + 8);
+      boardCtx.lineTo(left + width, g.slotBottomY + 8);
+      boardCtx.stroke();
+
+      boardCtx.fillStyle = '#64748b';
+      boardCtx.font = '12px sans-serif';
+      for (let k = 0; k <= g.rows; k++) {
+        if (g.rows <= 10 || k % 2 === 0) boardCtx.fillText(k, slotCenter(k) - 4, g.slotBottomY + 22);
+      }
+    }
+
+    function drawBall(x, y, r, kind) {
+      const grad = boardCtx.createRadialGradient(x - r * .35, y - r * .45, 1, x, y, r);
+      if (kind === 'fall') {
+        grad.addColorStop(0, '#fef3c7'); grad.addColorStop(.4, '#f59e0b'); grad.addColorStop(1, '#b45309');
+      } else {
+        grad.addColorStop(0, '#bfdbfe'); grad.addColorStop(.45, '#3b82f6'); grad.addColorStop(1, '#1e3a8a');
+      }
+      boardCtx.fillStyle = grad;
+      boardCtx.beginPath();
+      boardCtx.arc(x, y, r, 0, Math.PI * 2);
+      boardCtx.fill();
+    }
+
+    function drawStackedBalls() {
+      const g = geometry();
+      for (const b of stackedBalls) {
+        if (b.y < g.slotTopY - 20) continue;
+        drawBall(b.x, b.y, b.r, 'stack');
+      }
+    }
+
+    function drawFallingBalls() {
+      const g = geometry();
+      for (const b of fallingBalls) {
+        if (b.delay > 0 || b.finished) continue;
+        const seg = Math.min(g.rows - 1, Math.floor(b.progress));
+        const t0 = b.progress - seg;
+        const t = 0.5 - 0.5 * Math.cos(t0 * Math.PI);
+        const a = b.points[seg];
+        const c = b.points[seg + 1];
+        const x = a.x + (c.x - a.x) * t;
+        const y = a.y + (c.y - a.y) * t;
+        drawBall(x, y, g.ballR + 2.2, 'fall');
+      }
+    }
+
+    function drawCompareGraph() {
+      const s = settings();
+      const w = compareCanvas.width;
+      const h = compareCanvas.height;
+      const margin = 52;
+      const plotW = w - margin * 2;
+      const plotH = h - margin * 2 - 10;
+      cmpCtx.clearRect(0, 0, w, h);
+      cmpCtx.fillStyle = 'white';
+      cmpCtx.fillRect(0, 0, w, h);
+
+      const mean = s.rows * s.p;
+      const sd = Math.sqrt(s.rows * s.p * (1 - s.p));
+      const expProbs = counts.map(c => totalBalls > 0 ? c / totalBalls : 0);
+      const maxExp = Math.max(...expProbs, 0.01);
+      const maxNorm = sd > 0 ? normalPDF(mean, mean, sd) : 0.01;
+      const maxY = Math.max(maxExp, maxNorm) * 1.2;
+      const xScale = plotW / Math.max(1, s.rows);
+      const yScale = plotH / maxY;
+
+      cmpCtx.fillStyle = '#1e3a8a';
+      cmpCtx.font = 'bold 18px sans-serif';
+      cmpCtx.fillText('실험 결과 분포 vs 정규분포 곡선', margin, 28);
+
+      cmpCtx.strokeStyle = '#cbd5e1';
+      cmpCtx.lineWidth = 1.4;
+      cmpCtx.beginPath();
+      cmpCtx.moveTo(margin, h - margin);
+      cmpCtx.lineTo(margin + plotW, h - margin);
+      cmpCtx.moveTo(margin, h - margin);
+      cmpCtx.lineTo(margin, h - margin - plotH);
+      cmpCtx.stroke();
+
+      for (let i = 0; i <= 4; i++) {
+        const y = h - margin - plotH * i / 4;
+        cmpCtx.strokeStyle = '#eef2f7';
+        cmpCtx.beginPath();
+        cmpCtx.moveTo(margin, y);
+        cmpCtx.lineTo(margin + plotW, y);
+        cmpCtx.stroke();
+        cmpCtx.fillStyle = '#64748b';
+        cmpCtx.font = '12px sans-serif';
+        cmpCtx.fillText((maxY * i / 4).toFixed(2), 12, y + 4);
+      }
+
+      for (let k = 0; k <= s.rows; k++) {
+        const x = margin + k * xScale;
+        const barW = Math.max(3, xScale * .62);
+        const barH = expProbs[k] * yScale;
+        cmpCtx.fillStyle = '#93c5fd';
+        cmpCtx.fillRect(x - barW / 2, h - margin - barH, barW, barH);
+        cmpCtx.strokeStyle = '#3b82f6';
+        cmpCtx.strokeRect(x - barW / 2, h - margin - barH, barW, barH);
+      }
+
+      if (s.showExpCurve && totalBalls > 0) {
+        cmpCtx.strokeStyle = '#7c3aed';
+        cmpCtx.lineWidth = 3;
+        cmpCtx.beginPath();
+        for (let k = 0; k <= s.rows; k++) {
+          const x = margin + k * xScale;
+          const y = h - margin - expProbs[k] * yScale;
+          if (k === 0) cmpCtx.moveTo(x, y); else cmpCtx.lineTo(x, y);
+        }
+        cmpCtx.stroke();
+      }
+
+      if (s.showNormal) {
+        cmpCtx.strokeStyle = '#ef4444';
+        cmpCtx.lineWidth = 3;
+        cmpCtx.beginPath();
+        const steps = 500;
+        for (let i = 0; i <= steps; i++) {
+          const xv = s.rows * i / steps;
+          const yv = normalPDF(xv, mean, sd);
+          const x = margin + xv * xScale;
+          const y = h - margin - yv * yScale;
+          if (i === 0) cmpCtx.moveTo(x, y); else cmpCtx.lineTo(x, y);
+        }
+        cmpCtx.stroke();
+      }
+
+      if (s.showMean) {
+        const mx = margin + mean * xScale;
+        cmpCtx.strokeStyle = '#0f172a';
+        cmpCtx.setLineDash([6, 5]);
+        cmpCtx.beginPath();
+        cmpCtx.moveTo(mx, h - margin);
+        cmpCtx.lineTo(mx, h - margin - plotH);
+        cmpCtx.stroke();
+        cmpCtx.setLineDash([]);
+        cmpCtx.fillStyle = '#0f172a';
+        cmpCtx.font = 'bold 12px sans-serif';
+        cmpCtx.fillText('이론 평균', mx + 5, h - margin - plotH + 16);
+      }
+
+      cmpCtx.fillStyle = '#334155';
+      cmpCtx.font = '12px sans-serif';
+      const tick = s.rows <= 16 ? 1 : 2;
+      for (let k = 0; k <= s.rows; k += tick) cmpCtx.fillText(k, margin + k * xScale - 4, h - margin + 20);
+
+      const score = similarityScore();
+      if (score !== null) {
+        cmpCtx.fillStyle = '#eff6ff';
+        cmpCtx.strokeStyle = '#bfdbfe';
+        roundRect(cmpCtx, w - 180, 18, 150, 66, 16, true, true);
+        cmpCtx.fillStyle = '#1d4ed8';
+        cmpCtx.font = 'bold 14px sans-serif';
+        cmpCtx.fillText('닮음 점수', w - 138, 41);
+        cmpCtx.font = 'bold 28px sans-serif';
+        cmpCtx.fillText(score + '점', w - 137, 72);
+      }
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function drawAll() {
+      drawBoard();
+      drawCompareGraph();
+      updateStats();
+    }
+
+    function animate() {
+      const s = settings();
+      drawBoard();
+      for (const b of fallingBalls) {
+        if (b.delay > 0) { b.delay--; continue; }
+        if (!b.finished) {
+          b.progress += 0.16;
+          if (b.progress >= s.rows) {
+            b.finished = true;
+            addStackedBall(b.finalSlot);
+          }
+        }
+      }
+      drawFallingBalls();
+      drawCompareGraph();
+      updateStats();
+      fallingBalls = fallingBalls.filter(b => !b.finished || b.delay > 0);
+      if (fallingBalls.length > 0) requestAnimationFrame(animate);
+      else { animationRunning = false; drawAll(); }
+    }
+
+    rowsInput.addEventListener('input', () => resetExperiment());
+    probInput.addEventListener('input', () => resetExperiment());
+    ballsInput.addEventListener('input', () => { updateLabels(); drawAll(); });
+    [showExpCurveInput, showNormalInput, showMeanInput].forEach(el => el.addEventListener('change', drawAll));
+
+    resetExperiment();
+  
+
+
+
+
+    let savedObservations = [];
+    let studentJudgement = '';
+
+    function bnFactorialLog(n) {
+      let s = 0;
+      for (let i = 2; i <= n; i++) s += Math.log(i);
+      return s;
+    }
+
+    function bnBinomialPMF(n, p, k) {
+      if (p <= 0) return k === 0 ? 1 : 0;
+      if (p >= 1) return k === n ? 1 : 0;
+      const logProb = bnFactorialLog(n) - bnFactorialLog(k) - bnFactorialLog(n - k)
+        + k * Math.log(p) + (n - k) * Math.log(1 - p);
+      return Math.exp(logProb);
+    }
+
+    function bnNormalPDF(x, mean, sd) {
+      if (sd <= 0) return 0;
+      return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / sd, 2));
+    }
+
+   /*
+  오차함수 erf의 근삿값을 계산한다.
+
+  정규분포의 누적확률을 계산하기 위해 사용한다.
+*/
+function bnErf(x) {
+  const sign = x >= 0 ? 1 : -1;
+  const absX = Math.abs(x);
+
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+  const t = 1 / (1 + 0.3275911 * absX);
+
+  const y =
+    1 -
+    (
+      (
+        (
+          (
+            (a5 * t + a4) * t + a3
+          ) * t + a2
+        ) * t + a1
+      ) * t
+    ) * Math.exp(-absX * absX);
+
+  return sign * y;
+}
+
+
+/*
+  평균 mean, 표준편차 sd인 정규분포에서
+  P(X <= x)를 계산한다.
+*/
+function bnNormalCDF(x, mean, sd) {
+  if (sd <= 0) {
+    return x < mean ? 0 : 1;
+  }
+
+  const z = (x - mean) / (sd * Math.sqrt(2));
+  return 0.5 * (1 + bnErf(z));
+}
+
+
+/*
+  정수 k에 해당하는 정규근사 확률을 계산한다.
+
+  이항분포의 값 X=k는 정규분포에서
+  k-0.5부터 k+0.5까지의 면적으로 근사한다.
+
+  이것을 연속성 수정이라고 한다.
+*/
+function bnNormalIntervalProbability(k, mean, sd) {
+  const upper = bnNormalCDF(k + 0.5, mean, sd);
+  const lower = bnNormalCDF(k - 0.5, mean, sd);
+
+  return upper - lower;
+}
+
+
+/*
+  실험 2의 분포 자료와 교육용 닮음 점수를 계산한다.
+*/
+function bnGetDistData(n, p) {
+  const mean = n * p;
+  const sd = Math.sqrt(n * p * (1 - p));
+
+  const np = n * p;
+  const nq = n * (1 - p);
+
+  const binom = [];
+  const normal = [];
+  const normalIntervals = [];
+
+  for (let k = 0; k <= n; k++) {
+    // 정확한 이항분포 확률
+    const binomialProbability = bnBinomialPMF(n, p, k);
+
+    // 그래프에 표시할 정규분포 밀도함수
+    const normalDensity = bnNormalPDF(k, mean, sd);
+
+    // 닮음 점수 계산에 사용할 연속성 수정 정규근사 확률
+    const normalProbability =
+      bnNormalIntervalProbability(k, mean, sd);
+
+    binom.push(binomialProbability);
+    normal.push(normalDensity);
+    normalIntervals.push(normalProbability);
+  }
+
+  /*
+    1. 확률분포 일치 정도
+
+    이항분포의 확률과 연속성 수정을 적용한
+    정규근사 확률의 차이를 비교한다.
+  */
+  let totalDifference = 0;
+
+  for (let k = 0; k <= n; k++) {
+    totalDifference += Math.abs(
+      binom[k] - normalIntervals[k]
+    );
+  }
+
+  const probabilityOverlap = Math.max(
+    0,
+    Math.min(1, 1 - totalDifference / 2)
+  );
+
+  /*
+    2. 막대의 촘촘함 점수
+
+    n이 작으면 이항분포의 막대 개수가 적으므로
+    연속적인 정규분포 곡선과 비슷하다고 보기 어렵다.
+
+    n=5일 때 약 0.24
+    n=10일 때 약 0.43
+    n=20일 때 약 0.67
+    n=50일 때 약 0.94
+  */
+  const granularityScore =
+    1 - Math.exp(-n / 18);
+
+  /*
+    3. 정규근사 조건 점수
+
+    np와 n(1-p) 중 작은 값을 기준으로 한다.
+
+    둘 중 하나라도 작으면 정규근사가
+    충분히 잘 되지 않는 것으로 판단한다.
+
+    최솟값 2.5일 때 약 0.27
+    최솟값 5일 때 약 0.47
+    최솟값 10일 때 약 0.71
+    최솟값 25일 때 약 0.96
+  */
+  const minExpected = Math.min(np, nq);
+
+  const conditionScore =
+    1 - Math.exp(-minExpected / 8);
+
+  /*
+    4. 대칭성 점수
+
+    p=0.5이면 1에 가깝고,
+    p가 0이나 1에 가까워질수록 빠르게 낮아진다.
+
+    p=0.5일 때 1.00
+    p=0.3 또는 0.7일 때 약 0.55
+    p=0.1 또는 0.9일 때 약 0.30
+  */
+  const symmetryScore =
+    Math.exp(-3 * Math.abs(p - 0.5));
+
+  /*
+    5. 최종 교육용 닮음 점수
+
+    확률 일치 정도       25%
+    막대의 촘촘함       25%
+    정규근사 조건       35%
+    대칭성              15%
+
+    수학적으로 두 분포는 완전히 같은 분포가 아니므로
+    최고 점수를 99점으로 제한한다.
+  */
+  const rawSimilarity =
+    0.25 * probabilityOverlap +
+    0.25 * granularityScore +
+    0.35 * conditionScore +
+    0.15 * symmetryScore;
+
+  const similarity = Math.max(
+    0,
+    Math.min(
+      99,
+      Math.round(rawSimilarity * 100)
+    )
+  );
+
+  return {
+    mean,
+    sd,
+    binom,
+    normal,
+    normalIntervals,
+    similarity,
+    probabilityOverlap,
+    granularityScore,
+    conditionScore,
+    symmetryScore,
+    np,
+    nq
+  };
+}    function bnDrawDistribution(canvasId, n, p) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return null;
+      const ctx = canvas.getContext('2d');
+      const data = bnGetDistData(n, p);
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+
+      const marginLeft = 58;
+      const marginRight = 28;
+      const marginTop = 42;
+      const marginBottom = 56;
+      const chartW = w - marginLeft - marginRight;
+      const chartH = h - marginTop - marginBottom;
+
+      const maxY = Math.max(...data.binom, ...data.normal, 0.01) * 1.14;
+      const xStep = chartW / (n + 1);
+      const barW = Math.max(2, Math.min(18, xStep * 0.72));
+
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.font = '12px Malgun Gothic, Arial';
+      ctx.fillStyle = '#64748b';
+
+      for (let i = 0; i <= 4; i++) {
+        const y = marginTop + chartH * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(marginLeft, y);
+        ctx.lineTo(w - marginRight, y);
+        ctx.stroke();
+        const value = maxY * (1 - i / 4);
+        ctx.fillText(value.toFixed(2), 12, y + 4);
+      }
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(marginLeft, marginTop);
+      ctx.lineTo(marginLeft, h - marginBottom);
+      ctx.lineTo(w - marginRight, h - marginBottom);
+      ctx.stroke();
+
+      function xPos(k) {
+        return marginLeft + (k + 0.5) * xStep;
+      }
+
+      function yPos(prob) {
+        return marginTop + chartH * (1 - prob / maxY);
+      }
+
+      ctx.fillStyle = '#60a5fa';
+      for (let k = 0; k <= n; k++) {
+        const x = xPos(k) - barW / 2;
+        const y = yPos(data.binom[k]);
+        const barH = h - marginBottom - y;
+        ctx.fillRect(x, y, barW, barH);
+      }
+
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      const steps = Math.max(220, n * 6);
+      for (let i = 0; i <= steps; i++) {
+        const xVal = (n * i) / steps;
+        const prob = bnNormalPDF(xVal, data.mean, data.sd);
+        const x = marginLeft + (xVal + 0.5) * xStep;
+        const y = yPos(prob);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      const meanX = marginLeft + (data.mean + 0.5) * xStep;
+      ctx.save();
+      ctx.strokeStyle = '#16a34a';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath();
+      ctx.moveTo(meanX, marginTop);
+      ctx.lineTo(meanX, h - marginBottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#16a34a';
+      ctx.font = 'bold 15px Malgun Gothic, Arial';
+      ctx.fillText('μ', meanX + 6, marginTop + 18);
+      ctx.restore();
+
+      ctx.fillStyle = '#334155';
+      ctx.font = '12px Malgun Gothic, Arial';
+      const labelGap = n <= 20 ? 1 : n <= 50 ? 5 : 10;
+      for (let k = 0; k <= n; k++) {
+        if (k % labelGap === 0 || k === n) ctx.fillText(k, xPos(k) - 4, h - 30);
+      }
+
+      ctx.fillStyle = '#1e3a8a';
+      ctx.font = 'bold 19px Malgun Gothic, Arial';
+      ctx.fillText('이항분포 막대그래프와 정규분포 근사곡선', 24, 28);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '14px Malgun Gothic, Arial';
+      ctx.fillText(`n=${n}, p=${p.toFixed(2)}, μ=${data.mean.toFixed(2)}, σ=${data.sd.toFixed(2)}`, w - 300, 28);
+
+      return data;
+    }
+
+    function bnUpdateValues(prefix, n, p, data) {
+      document.getElementById(prefix + 'MeanValue').textContent = data.mean.toFixed(2);
+      document.getElementById(prefix + 'SdValue').textContent = data.sd.toFixed(2);
+      document.getElementById(prefix + 'NpValue').textContent = data.np.toFixed(2);
+      document.getElementById(prefix + 'NqValue').textContent = data.nq.toFixed(2);
+      document.getElementById(prefix + 'SimilarityValue').textContent = data.similarity + '점';
+    }
+
+  function graphInterpretation(n, p, data) {
+  const minExpected = Math.min(data.np, data.nq);
+
+  if (n < 8) {
+    return '시행 횟수가 작아 막대의 수가 적고 그래프가 듬성듬성하게 보입니다.';
+  }
+
+  if (minExpected < 5) {
+    return 'np 또는 n(1-p)가 작아 그래프가 한쪽으로 크게 치우쳐 보입니다.';
+  }
+
+  if (data.similarity >= 95) {
+    return '막대그래프의 전체적인 모양이 정규분포 곡선과 매우 비슷합니다.';
+  }
+
+  if (data.similarity >= 85) {
+    return '종 모양이 뚜렷하게 나타나며 정규분포 곡선과 비교적 잘 겹칩니다.';
+  }
+
+  if (data.similarity >= 70) {
+    return '전체적인 종 모양은 나타나지만 막대와 정규분포 곡선 사이에 차이가 있습니다.';
+  }
+
+  return '막대가 듬성듬성하거나 그래프가 한쪽으로 치우쳐 정규분포와 차이가 크게 나타납니다.';
+}
+    function drawMission() {
+      const nInput = document.getElementById('mNInput');
+      const pInput = document.getElementById('mPInput');
+      if (!nInput || !pInput) return;
+
+      const n = Number(nInput.value);
+      const p = Number(pInput.value) / 100;
+      document.getElementById('mNValue').textContent = n;
+      document.getElementById('mPValue').textContent = p.toFixed(2);
+
+      const data = bnDrawDistribution('missionCanvas', n, p);
+      if (!data) return;
+      bnUpdateValues('m', n, p, data);
+      const result = document.getElementById('missionResult');
+      if (!result) return;
+
+    const minExpected = Math.min(data.np, data.nq);
+
+if (data.similarity >= 95) {
+  result.textContent =
+    '두 그래프가 매우 비슷합니다. np와 n(1-p)가 모두 충분히 큰지 확인해 보세요.';
+
+  result.style.background = '#ecfdf5';
+  result.style.color = '#166534';
+
+} else if (data.similarity >= 85) {
+  result.textContent =
+    '정규분포와 비교적 비슷한 종 모양이 나타납니다. 시행 횟수를 더 늘리면 어떻게 변하는지 관찰해 보세요.';
+
+  result.style.background = '#eff6ff';
+  result.style.color = '#1e3a8a';
+
+} else if (data.similarity >= 70) {
+  result.textContent =
+    '전체적인 종 모양은 보이지만 아직 차이가 있습니다. 막대의 개수와 그래프의 치우침을 함께 살펴보세요.';
+
+  result.style.background = '#fffbeb';
+  result.style.color = '#92400e';
+
+} else {
+  result.textContent =
+    '두 그래프의 차이가 큽니다. n을 키우거나 p를 0.5에 가깝게 바꾸어 보세요.';
+
+  result.style.background = '#fef2f2';
+  result.style.color = '#991b1b';
+}
+
+      result.innerHTML = `${graphInterpretation(n, p, data)}<br>먼저 학생 판단을 선택한 뒤 관찰을 저장해 보세요.`;
+    }
+
+    function setStudentJudgement(value) {
+      studentJudgement = value;
+      const choice = document.getElementById('studentChoice');
+      if (choice) choice.textContent = `내 판단: ${value}`;
+
+      document.querySelectorAll('.judge-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.textContent.trim() === value);
+      });
+    }
+
+    function saveObservation() {
+      const nInput = document.getElementById('mNInput');
+      const pInput = document.getElementById('mPInput');
+      if (!nInput || !pInput) return;
+
+      const n = Number(nInput.value);
+      const p = Number(pInput.value) / 100;
+      const data = bnGetDistData(n, p);
+
+      savedObservations.push({
+        n,
+        p,
+        judgement: studentJudgement || '선택 안 함',
+        score: data.similarity,
+        interpretation: graphInterpretation(n, p, data)
+      });
+
+      renderObservationTable();
+
+      const result = document.getElementById('missionResult');
+      if (result) {
+        result.style.background = '#dcfce7';
+        result.style.color = '#166534';
+        result.innerHTML = `관찰이 저장되었습니다!<br>n=${n}, p=${p.toFixed(2)}, 학생 판단: <b>${studentJudgement || '선택 안 함'}</b>`;
+      }
+
+      const tableBox = document.querySelector('.condition-table-box');
+      if (tableBox) {
+        tableBox.classList.add('table-flash');
+        setTimeout(() => tableBox.classList.remove('table-flash'), 700);
+      }
+    }
+
+    function renderObservationTable() {
+      const tbody = document.getElementById('observationTableBody');
+      if (!tbody) return;
+
+      if (savedObservations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-row">아직 저장된 관찰이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = savedObservations.map((row, index) => {
+        const scoreClass = row.score >= 90 ? 'score-high' : row.score >= 80 ? 'score-mid' : 'score-low';
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${row.n}</td>
+            <td>${row.p.toFixed(2)}</td>
+            <td>${row.judgement}</td>
+            <td class="${scoreClass}">${row.score}점</td>
+            <td class="interpretation">${row.interpretation}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function clearObservationTable() {
+      savedObservations = [];
+      studentJudgement = '';
+
+      const choice = document.getElementById('studentChoice');
+      if (choice) choice.textContent = '아직 선택하지 않았습니다.';
+
+      document.querySelectorAll('.judge-btn').forEach(btn => btn.classList.remove('selected'));
+      renderObservationTable();
+      drawMission();
+    }
+
+    function setMissionAStart() {
+      clearObservationTable();
+      document.getElementById('mNInput').value = 5;
+      document.getElementById('mPInput').value = 50;
+      drawMission();
+
+      const result = document.getElementById('missionResult');
+      if (result) {
+        result.style.background = '#eff6ff';
+        result.style.color = '#1e3a8a';
+        result.innerHTML = '미션 1: p=0.5로 두고 n을 5 → 10 → 30 → 60처럼 직접 키워 보세요.<br>각 단계마다 그래프를 보고 학생 판단을 선택한 뒤 [현재 관찰 저장]을 누르세요.';
+      }
+    }
+
+    function setMissionBStart() {
+      clearObservationTable();
+      document.getElementById('mNInput').value = 50;
+      document.getElementById('mPInput').value = 10;
+      drawMission();
+
+      const result = document.getElementById('missionResult');
+      if (result) {
+        result.style.background = '#eff6ff';
+        result.style.color = '#1e3a8a';
+        result.innerHTML = '미션 2: n=50으로 두고 p를 0.1 → 0.3 → 0.5 → 0.8처럼 직접 바꿔 보세요.<br>각 단계마다 그래프를 보고 학생 판단을 선택한 뒤 [현재 관찰 저장]을 누르세요.';
+      }
+    }
+
+    function toggleRuleReveal() {
+      const box = document.getElementById('ruleReveal');
+      if (box) box.classList.toggle('active');
+    }
+
+    async function captureTab(tabId, filename) {
+      const target = document.getElementById(tabId);
+      if (!target) return;
+
+      if (typeof html2canvas === 'undefined') {
+        alert('캡쳐 기능을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.');
+        return;
+      }
+
+      if (tabId === 'compare') drawAll();
+      if (tabId === 'mission') drawMission();
+
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      const canvas = await html2canvas(target, {
+        backgroundColor: null,
+        scale: Math.max(2, window.devicePixelRatio || 2),
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        removeContainer: true
+      });
+
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+
+
+    // ===== 실험 3: 정규근사 예측 게임 =====
+    const gameRounds = [
+      { n:50, p:0.50, title:'ROUND 1 · 워밍업', desc:'p가 0.5이고 시행 횟수도 충분히 커 보입니다. 직관대로 결과가 나올까요?' },
+      { n:6, p:0.50, title:'ROUND 2 · 작은 n', desc:'p는 가장 대칭적인 0.5입니다. 하지만 시행 횟수가 매우 작다면 어떨까요?' },
+      { n:100, p:0.02, title:'ROUND 3 · 함정!', desc:'n은 무려 100입니다. “n이 크면 무조건 정규근사가 잘 된다”는 말이 맞는지 검증해 보세요.' },
+      { n:25, p:0.20, title:'ROUND 4 · 경계값', desc:'이번에는 어떤 값이 정규근사의 경계에 걸려 있습니다. 그래프를 보기 전에 판단해 보세요.' },
+      { n:40, p:0.15, title:'ROUND 5 · 조건 적용', desc:'앞선 ROUND에서 발견한 패턴을 이용해 예측해 보세요.' },
+      { n:80, p:0.90, title:'FINAL ROUND', desc:'p가 1에 꽤 가깝지만 n도 큽니다. 성공과 실패의 기대 횟수를 머릿속으로 생각해 보세요.' }
+    ];
+    let gameRoundIndex = 0;
+    let gamePrediction = null;
+    let gameRevealed = false;
+    let gameCompleted = 0;
+
+    function empiricalApproxOK(n,p){ return n*p >= 5 && n*(1-p) >= 5; }
+
+    function initGameRound(){
+      const r=gameRounds[gameRoundIndex];
+      if(!r || !document.getElementById('gameN')) return;
+      gamePrediction=null; gameRevealed=false;
+      document.getElementById('roundBadge').textContent=`ROUND ${gameRoundIndex+1} / ${gameRounds.length}`;
+      document.getElementById('roundTitle').textContent=r.title;
+      document.getElementById('roundDesc').textContent=r.desc;
+      document.getElementById('gameN').textContent=r.n;
+      document.getElementById('gameP').textContent=r.p.toFixed(2);
+      document.getElementById('gameCanvasCover').style.display='flex';
+      document.getElementById('gameRevealStats').style.display='none';
+      document.getElementById('gameRevealBtn').disabled=true;
+      document.getElementById('gameNextBtn').style.display='none';
+      document.getElementById('gameFeedback').className='game-feedback';
+      document.getElementById('gameFeedback').textContent='n과 p만 보고 먼저 예측해 보세요. np와 n(1-p)는 그래프를 공개한 뒤 확인할 수 있습니다.';
+      document.querySelectorAll('.predict-btn').forEach(b=>b.classList.remove('selected'));
+      document.getElementById('gameProgressBar').style.width=`${(gameCompleted/gameRounds.length)*100}%`;
+      drawGamePlaceholder();
+      renderApproxMap();
+    }
+
+    function drawGamePlaceholder(){
+      const c=document.getElementById('gameCanvas'); if(!c) return;
+      const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    }
+
+    function chooseGamePrediction(value){
+      if(gameRevealed) return;
+      gamePrediction=value;
+      document.querySelectorAll('.predict-btn').forEach(b=>b.classList.toggle('selected',b.dataset.predict===value));
+      document.getElementById('gameRevealBtn').disabled=false;
+      document.getElementById('gameFeedback').textContent=value==='yes' ? '내 예측: 정규근사가 잘 될 것 같다. 이제 그래프를 공개해 확인해 보세요.' : '내 예측: 정규근사가 잘 안 될 것 같다. 이제 그래프를 공개해 확인해 보세요.';
+    }
+
+    function revealGameRound(){
+      if(!gamePrediction || gameRevealed) return;
+      const r=gameRounds[gameRoundIndex];
+      const data=bnDrawDistribution('gameCanvas',r.n,r.p);
+      gameRevealed=true;
+      document.getElementById('gameCanvasCover').style.display='none';
+      document.getElementById('gameRevealStats').style.display='grid';
+      document.getElementById('gameNp').textContent=data.np.toFixed(2);
+      document.getElementById('gameNq').textContent=data.nq.toFixed(2);
+      document.getElementById('gameScore').textContent=data.similarity+'점';
+      const ok=empiricalApproxOK(r.n,r.p);
+      const hit=(gamePrediction==='yes')===ok;
+      const fb=document.getElementById('gameFeedback');
+      fb.className='game-feedback '+(hit?'good':'bad');
+      // 그래프 공개 단계에서는 기준값 5를 먼저 제시하지 않는다.
+      // 학생은 np, n(1-p)의 실제 값과 그래프 모양을 비교한 뒤 공통 규칙을 스스로 찾는다.
+      const reason = `np=${data.np.toFixed(2)}, n(1-p)=${data.nq.toFixed(2)}`;
+      fb.innerHTML=`${hit?'🎉 예측 성공!':'😲 예상과 달랐네요!'}<br>${reason}<br>${graphInterpretation(r.n,r.p,data)}`;
+      gameCompleted=Math.max(gameCompleted,gameRoundIndex+1);
+      document.getElementById('gameProgressBar').style.width=`${(gameCompleted/gameRounds.length)*100}%`;
+      const next=document.getElementById('gameNextBtn');
+      if(gameRoundIndex<gameRounds.length-1){ next.style.display='block'; next.textContent='다음 ROUND'; }
+      else { next.style.display='none'; document.getElementById('gameRuleBtn').disabled=false; document.getElementById('gameRuleBtn').textContent='내가 찾은 규칙과 비교하기'; }
+      renderApproxMap();
+    }
+
+    function nextGameRound(){
+      if(!gameRevealed) return;
+      if(gameRoundIndex<gameRounds.length-1){ gameRoundIndex++; initGameRound(); }
+    }
+
+    function renderApproxMap(){
+      const box=document.getElementById('approxMap'); if(!box) return;
+      const ns=[10,20,30,50,100]; const ps=[.1,.2,.3,.4,.5,.6,.7,.8,.9];
+      let html='<table><thead><tr><th>n \\ p</th>'+ps.map(p=>`<th>${p.toFixed(1)}</th>`).join('')+'</tr></thead><tbody>';
+      const unlocked=gameCompleted>=3;
+      const current=gameRounds[gameRoundIndex];
+      for(const n of ns){
+        html+=`<tr><th>${n}</th>`;
+        for(const p of ps){
+          const cls=unlocked?(empiricalApproxOK(n,p)?'good':'bad'):'locked';
+          const isCurrent=current && current.n===n && Math.abs(current.p-p)<1e-9;
+          html+=`<td class="map-cell ${cls} ${isCurrent?'current':''}">${unlocked?(empiricalApproxOK(n,p)?'✓':'×'):'?'}</td>`;
+        }
+        html+='</tr>';
+      }
+      html+='</tbody></table>';
+      if(!unlocked) html+='<div style="text-align:center;color:#64748b;font-weight:800;margin-top:8px;">ROUND 3까지 완료하면 지도가 열립니다.</div>';
+      box.innerHTML=html;
+    }
+
+    function toggleGameRule(){
+      const box=document.getElementById('gameRuleBox');
+      if(box) box.classList.toggle('active');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const missionNInput = document.getElementById('mNInput');
+      const missionPInput = document.getElementById('mPInput');
+
+      if (missionNInput) {
+        missionNInput.addEventListener('input', drawMission);
+        missionNInput.addEventListener('change', drawMission);
+      }
+
+      if (missionPInput) {
+        missionPInput.addEventListener('input', drawMission);
+        missionPInput.addEventListener('change', drawMission);
+      }
+
+      drawMission();
+      renderObservationTable();
+      renderApproxMap();
+    });
+
+</script>
+</body>
+</html>

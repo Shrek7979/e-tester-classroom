@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IASA [종합] 탐사 로봇 최적화 시뮬레이터</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="window.renderMath&&renderMath()"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #060913;
+            color: #f1f5f9;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900 bg-opacity-90 backdrop-blur sticky top-0 z-50 px-4 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 rounded-lg text-white font-bold font-orbitron shadow-lg shadow-indigo-950/40">
+                    IASA
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        [종합] 탐사 최적화 및 전략 설계 샌드박스
+                    </h1>
+                    <p class="text-xs text-slate-400">탐사 성능, 회수율 및 위험 요소를 결합한 모둠별 통합 평가지표 시뮬레이터</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                <span class="text-slate-300">종합 프로젝트 <strong class="text-indigo-400">image_55dfe2.png</strong> 분석 시스템</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: 이론 분석 및 미션 브리핑 (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- 미션 개요 및 탐색 가이드 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        🛰️ 프로젝트 미션 가이드
+                    </h2>
+                    <span class="text-xs text-indigo-400 font-mono">Mission Briefing</span>
+                </div>
+                
+                <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+                    <div class="p-3.5 bg-slate-950/50 border border-slate-800 rounded-xl space-y-2">
+                        <p class="text-sm font-bold text-indigo-300">📌 모둠별 도전 과제</p>
+                        <p>IASA 행성 탐사팀은 <strong class="text-slate-100">"탐사를 최대한 성공적으로 수행(넓은 면적 확보)하면서도 로봇을 안전하게 회수할 수 있는 최적의 전략"</strong>을 수립해야 합니다.</p>
+                        <p class="text-amber-400/90">⚠️ 연구팀 제약 조건: <strong class="font-bold">로봇의 회수 확률을 최소 90% 이상</strong>으로 유지해야 합니다.</p>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-950/50 border border-slate-800 rounded-xl space-y-2">
+                        <p class="text-sm font-bold text-emerald-400">📊 새로운 종합 평가지표 설계 모델</p>
+                        <p>효율적인 탐사를 판정하기 위해 다음과 같은 수리적 통합 평가지표 \(S\)가 새롭게 수립되었습니다:</p>
+                        <div class="p-3 bg-slate-950 rounded border border-slate-800 text-center font-mono space-y-2 my-2">
+                            <div class="text-indigo-300 font-bold">$$S = \text{탐사 범위} \times \text{회수 확률} \times (1 + \text{위험도})$$</div>
+                            <div class="text-slate-400 text-[11px] leading-relaxed">
+                                $$\text{탐사 범위} = \sigma = \sqrt{N}$$
+                                $$\text{회수 확률}(P) = P(|X_N| \le L)$$
+                                $$\text{위험도} = \frac{\text{최대 지점}(3\sigma)}{\text{회수 가능 거리}(L)} = \frac{3\sqrt{N}}{L}$$
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-400">
+                            ※ 최대 지점은 통계학적으로 탐사 기기들이 물리적으로 확산될 수 있는 실질적인 최외곽 한계인 \(3\sigma(99.7\%)\) 반경을 기준으로 설정됩니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 변수 설정 데스크 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        🛠️ 전략 파라미터 조율 데스크
+                    </h2>
+                    <span class="text-xs text-emerald-400 font-mono">Control Panel</span>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- 탐사선 작동 스텝 N -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">총 작동 횟수 (탐색 심도 \(N\))</span>
+                            <div class="flex gap-2">
+                                <button onclick="setN(14800)" class="px-1.5 py-0.5 bg-indigo-950 hover:bg-indigo-900 text-[10px] text-indigo-300 border border-indigo-500/30 rounded font-semibold">★ 이론적 최적점</button>
+                                <span class="text-indigo-400 font-bold font-mono animate-pulse" id="val-n">14,800 보</span>
+                            </div>
+                        </div>
+                        <input type="range" id="input-n" min="1000" max="60000" step="100" value="14800" 
+                               class="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>1,000 보</span>
+                            <span>\(14,800\) 보 영역 근처가 지표 \(S\)가 최대화되는 수학적 임계점입니다.</span>
+                            <span>60,000 보</span>
+                        </div>
+                    </div>
+
+                    <!-- 회수 한계 L -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">기지 회수 한계 거리 (\(L\) 칸)</span>
+                            <span class="text-emerald-400 font-bold font-mono" id="val-l">200 칸</span>
+                        </div>
+                        <input type="range" id="input-l" min="50" max="500" step="10" value="200" 
+                               class="w-full accent-emerald-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>50 칸</span>
+                            <span>회수 한계가 넓어지면 탐사선 복귀 확률이 증가하지만 지표 가중치도 함께 변화합니다.</span>
+                            <span>500 칸</span>
+                        </div>
+                    </div>
+
+                    <!-- 가상 로봇 수 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">시뮬레이션 배치 대수</span>
+                            <span class="text-indigo-300 font-mono" id="val-trials">2,000 대</span>
+                        </div>
+                        <input type="range" id="input-trials" min="500" max="5000" step="100" value="2000" 
+                               class="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <button id="btn-calculate" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-950/50 transition active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                        🚀 우주 탐사 최적화 가설 테스트 가동
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: 최적화 결과 그래프 및 통계 대조군 (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- 분포 시각화 및 타겟 밴드 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md flex-grow flex flex-col justify-between min-h-[380px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                            📊 탐사 확률 밀도 분포 및 회수 영역 (\(\pm L\))
+                        </h2>
+                        <p class="text-[11px] text-slate-400">중앙 파란색 영역 내부에 안착해야 안전하게 정상 회수가 완료됩니다.</p>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas -->
+                <div class="relative w-full h-[280px] bg-slate-950/50 rounded-xl p-2 border border-slate-800/40">
+                    <canvas id="opt-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- 실시간 종합 효율성 평가 보드 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        📋 모둠별 탐색 지표 및 가설 평가 대시보드
+                    </h2>
+                    <span class="text-xs text-indigo-400 font-bold font-mono">Real-time Efficiency Metrics</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    
+                    <!-- 지표 1: 탐사 범위 -->
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 font-bold block mb-1">① 탐사 범위 (\(\sigma\))</span>
+                            <span class="text-[11px] text-indigo-300 font-bold font-mono block mb-1.5" id="res-explore-breadth">0.00 칸</span>
+                            <p class="text-[9px] text-slate-400 leading-tight">표준오차 범위인 \(\sigma = \sqrt{N}\)를 탐색의 깊이 기준으로 삼습니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 지표 2: 실제 회수율 -->
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 font-bold block mb-1">② 실제 회수율 (P)</span>
+                            <span class="text-[11px] text-emerald-400 font-bold font-mono block mb-1.5" id="res-recovery-rate">0.00 %</span>
+                            <p class="text-[9px] text-slate-400 leading-tight">설정 한계선 \(\pm L\) 내에 안전 복귀 완료될 실제 비율입니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 지표 3: 위험도 -->
+                    <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 font-bold block mb-1">③ 위험도 (Risk)</span>
+                            <span class="text-[11px] text-rose-400 font-bold font-mono block mb-1.5" id="res-risk-factor">0.00</span>
+                            <p class="text-[9px] text-slate-400 leading-tight">최대 도달 지점(\(3\sigma\)) 대비 회수 가용 반경(\(L\))의 비율입니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 지표 4: 모둠 종합 점수 S -->
+                    <div class="p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] text-indigo-300 font-extrabold block mb-1">🏆 종합 평가 지표 (S)</span>
+                            <span class="text-base font-black font-orbitron text-amber-400 block mb-1" id="res-overall-score">-</span>
+                            <p class="text-[9px] text-slate-400 leading-tight" id="score-formula-descr">
+                                탐색 깊이, 회수 성공 안전 조건, 그리고 탐색 위험도가 결합된 지표입니다.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 분석 보고 및 인사이트 영역 -->
+                <div class="mt-4 p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                    <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                        💡 탐사 데이터 센터의 최적화 가설 리포트
+                    </p>
+                    <div class="text-[11px] text-slate-400 leading-relaxed space-y-1" id="insight-text">
+                        설정 값을 조정한 후 가설 테스트를 가동해 주세요.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 px-4 py-4 text-center text-[11px] text-slate-500">
+        <p>© 2026 IASA 우주 환경 모델링 연구단. 이 최적화 프로그램은 한정된 탐사 로봇의 생존 한계를 모사하고 가혹한 환경 속 최선의 타협안을 고안하도록 가이드합니다.</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        const inputN = document.getElementById('input-n');
+        const valN = document.getElementById('val-n');
+        const inputL = document.getElementById('input-l');
+        const valL = document.getElementById('val-l');
+        const inputTrials = document.getElementById('input-trials');
+        const valTrials = document.getElementById('val-trials');
+
+        const btnCalculate = document.getElementById('btn-calculate');
+
+        // Stats UI elements
+        const resExploreBreadth = document.getElementById('res-explore-breadth');
+        const resRecoveryRate = document.getElementById('res-recovery-rate');
+        const resRiskFactor = document.getElementById('res-risk-factor');
+        const resOverallScore = document.getElementById('res-overall-score');
+        const scoreFormulaDescr = document.getElementById('score-formula-descr');
+        const insightText = document.getElementById('insight-text');
+
+        let optChart = null;
+
+        // Interaction listeners
+        inputN.addEventListener('input', (e) => {
+            valN.textContent = `${parseInt(e.target.value).toLocaleString()} 보`;
+            runOptimization();
+        });
+
+        inputL.addEventListener('input', (e) => {
+            valL.textContent = `${e.target.value} 칸`;
+            runOptimization();
+        });
+
+        inputTrials.addEventListener('input', (e) => {
+            valTrials.textContent = `${parseInt(e.target.value).toLocaleString()} 대`;
+        });
+
+        function setN(val) {
+            inputN.value = val;
+            valN.textContent = `${val.toLocaleString()} 보`;
+            runOptimization();
+        }
+
+        function setL(val) {
+            inputL.value = val;
+            valL.textContent = `${val} 칸`;
+            runOptimization();
+        }
+
+        // Standard Normal Distribution Helper Functions
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = (x < 0) ? -1 : 1;
+            x = Math.abs(x);
+
+            const t = 1.0/(1.0 + p*x);
+            const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*Math.exp(-x*x);
+
+            return sign * y;
+        }
+
+        function normalCDF(x, mean, std) {
+            return 0.5 * (1 + erf((x - mean) / (std * Math.sqrt(2))));
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('opt-chart').getContext('2d');
+            optChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '실제 분포 비중',
+                            data: [],
+                            backgroundColor: [],
+                            borderColor: [],
+                            borderWidth: 1.5,
+                            borderRadius: 2,
+                            barPercentage: 0.85,
+                            categoryPercentage: 0.85,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: '이론 정규 분포 밀도',
+                            data: [],
+                            borderColor: 'rgba(99, 102, 241, 0.9)', // Violet
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.4,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#090d16',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: (items) => `기지로부터의 좌표: ${items[0].label} 칸`,
+                                label: (item) => ` 해당 위치 분포 비율: ${(item.raw * 100).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.15)' },
+                            ticks: { color: '#64748b', font: { family: 'Orbitron', size: 9 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.15)' },
+                            ticks: {
+                                color: '#64748b',
+                                callback: (v) => `${(v * 100).toFixed(1)}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function runOptimization() {
+            const N = parseInt(inputN.value);
+            const L = parseInt(inputL.value);
+            const trials = parseInt(inputTrials.value);
+
+            // Compute theoretical scale
+            const stdTheory = Math.sqrt(N);
+            resExploreBreadth.textContent = `${stdTheory.toFixed(1)} 칸`;
+
+            // Rapid and extremely precise normal sampling under CLT
+            const finalPositions = [];
+            let inRangeCount = 0;
+
+            for (let i = 0; i < trials; i++) {
+                let u = 0, v = 0;
+                while(u === 0) u = Math.random();
+                while(v === 0) v = Math.random();
+                const normalRand = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                
+                let rawPos = normalRand * stdTheory;
+                let pos = Math.round(rawPos);
+                // Align with N parity
+                if ((N % 2 === 0 && Math.abs(pos) % 2 !== 0) || (N % 2 !== 0 && Math.abs(pos) % 2 === 0)) {
+                    pos = pos > rawPos ? pos - 1 : pos + 1;
+                }
+
+                finalPositions.push(pos);
+                if (Math.abs(pos) <= L) {
+                    inRangeCount++;
+                }
+            }
+
+            const actualRecoveryRate = inRangeCount / trials;
+            const recoveryPercentText = (actualRecoveryRate * 100).toFixed(1);
+            resRecoveryRate.textContent = `${recoveryPercentText} %`;
+
+            // 1. Exploration Breadth = \sigma = \sqrt{N}
+            const breadth = stdTheory;
+
+            // 2. Recovery Probability (P)
+            const P = actualRecoveryRate;
+
+            // 3. Risk Factor = Max coordinate / Recovery threshold distance L
+            // Max coordinate is statistically represented as 3\sigma
+            const maxPos = 3 * stdTheory;
+            const risk = maxPos / L;
+            resRiskFactor.textContent = risk.toFixed(2);
+
+            // 4. Overall Score S = Breadth * P * (1 + Risk)
+            const S = breadth * P * (1 + risk);
+            resOverallScore.textContent = S.toFixed(2);
+
+            scoreFormulaDescr.innerHTML = `평가 공식: <strong class="text-indigo-300">S = \\sigma \\times P \\times (1 + \\text{위험도})</strong><br>현재 계산식: \\(${breadth.toFixed(1)} \\times ${P.toFixed(3)} \\times (1 + ${risk.toFixed(2)})\\)`;
+
+            // Insight generator text based on result state
+            let insight = "";
+            if (actualRecoveryRate < 0.90) {
+                insight = `<span class="text-rose-400 font-bold">⚠️ 경고 (제약 조건 미달):</span> 현재 설계 하에서 로봇의 실제 회수율이 <span class="font-bold underline text-rose-300">${recoveryPercentText}%</span>에 그칩니다. IASA 연구팀 조건인 <span class="font-semibold text-rose-400">최소 90% 이상의 회수율</span>을 충족하지 못해, 효율성 점수 \(S\)가 높게 평가되더라도 이 설계는 채택될 수 없습니다. <span class="text-slate-300">탐사선 스텝 수 \(N\)을 제한하거나, 기지 회수 반경 \(L\)을 넓혀 안전 요건을 통과해야 합니다.</span>`;
+            } else {
+                insight = `<span class="text-emerald-400 font-bold">✅ 제약 조건 충족 (승인 가능):</span> 현재 회수율이 <span class="text-emerald-300 font-bold">${recoveryPercentText}%</span>로 정상 기준(90% 이상)을 우수하게 만족합니다. 현재 종합 평가 지표 점수는 <span class="text-amber-400 font-bold font-orbitron">${S.toFixed(2)}</span>점 입니다.<br>`;
+                
+                // Suggest further optimization tips
+                const maxS_CandidateN = Math.pow(L / 1.645, 2); // 90% optimal limit
+                if (N < maxS_CandidateN * 0.85) {
+                    insight += `<span class="text-indigo-300">💡 최적화 조언:</span> 안전 마진이 필요 이상으로 너무 커서 탐사 범위에 아쉬움이 있습니다. 작동 횟수 \(N\)을 조금 더 높여 위험 가중치와 탐색 폭을 극대화하면 지표 \(S\) 점수를 더 높게 갱신할 수 있습니다.`;
+                } else if (N > maxS_CandidateN * 1.05) {
+                    insight += `<span class="text-amber-300">💡 아슬아슬한 타협점:</span> 통계적 회수선인 \(90\%\) 경계에 대단히 근접했습니다. 위험 가중치를 최대로 받아 고득점을 받았으나, 통계적 오류나 외부 환경 악화 시 미회수 위험에 빠지기 쉽습니다.`;
+                } else {
+                    insight += `<span class="text-emerald-300">💡 이상적인 전략 지점:</span> 통계적으로 안전 기준인 90% 수준을 아슬아슬하게 통과하며, 위험 대비 탐사 효율 점수 \(S\)가 최적화 평형을 이루고 있는 훌륭한 설계 포인트입니다!`;
+                }
+            }
+            insightText.innerHTML = insight;
+
+            // Generate nice bins for charting
+            const binCount = 31;
+            const chartMax = Math.ceil(3.2 * stdTheory);
+            const chartMin = -chartMax;
+            const stepWidth = (chartMax - chartMin) / binCount;
+
+            const labels = [];
+            const barData = [];
+            const lineData = [];
+            const barBgColors = [];
+            const barBorderColors = [];
+
+            for (let i = 0; i < binCount; i++) {
+                const binMid = chartMin + (i + 0.5) * stepWidth;
+                labels.push(Math.round(binMid));
+
+                // Real empirical bin counting
+                let count = 0;
+                finalPositions.forEach(p => {
+                    if (p >= binMid - stepWidth/2 && p < binMid + stepWidth/2) {
+                        count++;
+                    }
+                });
+                barData.push(count / trials);
+
+                // Theory density scale
+                const exponent = -Math.pow(binMid, 2) / (2 * N);
+                const density = (1 / (stdTheory * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+                lineData.push(density * stepWidth);
+
+                // Color coding based on whether the bin resides in safe region L
+                if (Math.abs(binMid) <= L) {
+                    barBgColors.push('rgba(99, 102, 241, 0.45)'); // Indigo
+                    barBorderColors.push('rgb(129, 140, 248)');
+                } else {
+                    barBgColors.push('rgba(244, 63, 94, 0.2)'); // Rose (lost)
+                    barBorderColors.push('rgba(251, 113, 133, 0.5)');
+                }
+            }
+
+            optChart.data.labels = labels;
+            optChart.data.datasets[0].data = barData;
+            optChart.data.datasets[0].backgroundColor = barBgColors;
+            optChart.data.datasets[0].borderColor = barBorderColors;
+            optChart.data.datasets[1].data = lineData;
+            optChart.update('none');
+
+            // Render newly generated LaTeX inside elements
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        }
+
+        btnCalculate.addEventListener('click', () => {
+            runOptimization();
+        });
+
+        function renderMath() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        window.onload = function() {
+            initChart();
+            renderMath();
+            runOptimization();
+        }
+    </script>
+</body>
+</html>

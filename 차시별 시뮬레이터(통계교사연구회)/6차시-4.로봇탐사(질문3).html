@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IASA 랜덤워크: 탐사 제한 및 회수율 분석기</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="window.renderMath&&renderMath()"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #060913;
+            color: #f1f5f9;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900 bg-opacity-90 backdrop-blur sticky top-0 z-50 px-4 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-rose-600 rounded-lg text-white font-bold font-orbitron shadow-lg shadow-rose-950/40">
+                    IASA
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        탐사 효율 및 회수율 한계 시뮬레이터 <span class="text-xs bg-slate-800 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full font-mono">질문 3 전용</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">“탐사 횟수를 무한히 늘리는 것이 탐사선 회수 측면에서 과연 유리할까?”</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                <span class="text-slate-300">이미지 <strong class="text-rose-400">image_55eb68.png</strong> 질문 검증 도구</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: 이론적 수학증명 (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- 수학적 개념 분석 패널 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        📐 [질문 3] 수학적 분석 및 정형식
+                    </h2>
+                    <span class="text-xs text-slate-400 font-mono">Theoretical Limit</span>
+                </div>
+                
+                <div class="space-y-3.5 max-h-[500px] overflow-y-auto pr-1">
+                    
+                    <!-- (1)번 해설 -->
+                    <div class="p-3.5 bg-slate-950/50 border border-slate-800 rounded-xl">
+                        <h3 class="text-xs font-bold text-rose-400 mb-2">Q1. 이항분포의 정규근사 (드무아브르-라플라스)</h3>
+                        <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                            <p>오른쪽 이동 횟수 \(R\)은 이항분포 \(B(N, 0.5)\)를 따릅니다. 최종 위치는 \(X_N = 2R-N\) 입니다.</p>
+                            <p>\(N\)이 충분히 클 때, 드무아브르-라플라스 정리에 의해 이항분포는 정규분포로 근사합니다:</p>
+                            <div class="py-2.5 bg-slate-950 rounded text-center text-xs font-mono text-rose-300">
+                                $$R \approx N\left( \frac{N}{2}, \, \frac{N}{4} \right)$$
+                                $$X_N = 2R - N \approx N(0, \, N)$$
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">따라서 표준오차(퍼진 정도)는 \(\sigma = \sqrt{N}\) 이 됩니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- (2), (3), (4)번 해설 -->
+                    <div class="p-3.5 bg-slate-950/50 border border-slate-800 rounded-xl">
+                        <h3 class="text-xs font-bold text-rose-400 mb-2">Q2 ~ Q4. 탐사 횟수 4배 시 회수율의 역설적 감소</h3>
+                        <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+                            <div>
+                                <p class="font-semibold text-slate-200">① \(N=10,000\)일 때 (한계: 200칸):</p>
+                                <p class="text-[11px] text-slate-400">\(\sigma = \sqrt{10000} = 100\). 범위 \([-200, 200]\)은 \([-2\sigma, 2\sigma]\)입니다.</p>
+                                <div class="py-1 bg-slate-950 rounded text-center font-mono text-[11px] text-emerald-400">
+                                    $$P(|X_N| \le 200) = P(-2 \le Z \le 2) \approx 95\%$$
+                                </div>
+                            </div>
+                            <hr class="border-slate-800">
+                            <div>
+                                <p class="font-semibold text-slate-200">② \(N=40,000\)일 때 (한계: 200칸):</p>
+                                <p class="text-[11px] text-slate-400">\(\sigma = \sqrt{40000} = 200\). 범위 \([-200, 200]\)은 \([-1\sigma, 1\sigma]\)로 줄어듭니다.</p>
+                                <div class="py-1 bg-slate-950 rounded text-center font-mono text-[11px] text-amber-400">
+                                    $$P(|X_N| \le 200) = P(-1 \le Z \le 1) \approx 68\%$$
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-rose-950/20 text-[11px] rounded border border-rose-500/20 text-rose-300">
+                                <strong>💡 모둠 토론 결론:</strong> 탐사 시간을 4배로 늘리면 더 넓은 곳을 탐색할 수 있지만, 로봇이 너무 흩어지므로 오히려 제자리 근처(200칸)로 돌아와 정상 회수될 확률은 <strong>95%에서 68%로 크게 줄어듭니다.</strong> 즉, 탐사 횟수를 무작정 늘리는 것이 무조건 좋은 전략은 아닙니다!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- (5)번 해설 -->
+                    <div class="p-3.5 bg-emerald-950/20 border border-emerald-900/30 rounded-xl">
+                        <h3 class="text-xs font-bold text-emerald-400 mb-2">Q5. 회수율 95% 보장을 위한 최대 허용 탐사수</h3>
+                        <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                            <p>기지 회수 제한 범위가 <strong class="text-emerald-400">300칸</strong>으로 증가했고, 회수 성공 확률이 <strong class="text-emerald-400">95% 이상</strong>이어야 합니다.</p>
+                            <p>자료 2에 따라 \(95\%\) 신뢰 수준은 약 \(2\sigma\) 범위이므로 다음 부등식을 성립해야 합니다:</p>
+                            <div class="py-2.5 bg-slate-950 rounded text-center font-mono text-emerald-300">
+                                $$2\sigma \le 300 \implies \sigma \le 150$$
+                                $$\sigma = \sqrt{N} \implies \sqrt{N} \le 150$$
+                                $$N \le 150^2 = 22,500\text{ 보}$$
+                            </div>
+                            <p class="text-[11px] text-slate-400">정밀한 표준정규분포 표 적용 시 (\(Z=1.96\)):</p>
+                            <div class="py-1 bg-slate-950 rounded text-center font-mono text-[11px] text-indigo-300">
+                                $$1.96\sqrt{N} \le 300 \implies N \le \left(\frac{300}{1.96}\right)^2 \approx 23,428\text{ 보}$$
+                            </div>
+                            <p class="text-[11px] text-amber-300 mt-1">즉, 로봇을 95% 확률로 돌려받으려면 최대 약 <strong>23,428보</strong>까지만 작동시켜야 합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 변수 제어 패널 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        ⚙️ 탐색 인자 가설 수립
+                    </h2>
+                    <span class="text-xs text-rose-400 font-mono">Control Desk</span>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- N보 가설 검증 슬라이더 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">가상 탐사 횟수 (\(N\))</span>
+                            <div class="flex gap-1">
+                                <button onclick="setN(10000)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] text-slate-300 font-mono">10K</button>
+                                <button onclick="setN(22500)" class="px-2 py-0.5 bg-emerald-950 hover:bg-emerald-900 rounded text-[10px] text-emerald-400 font-mono border border-emerald-500/20">22.5K</button>
+                                <button onclick="setN(40000)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] text-slate-300 font-mono">40K</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="input-n" min="1000" max="50000" step="500" value="10000" 
+                                   class="flex-grow accent-rose-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <span class="text-rose-400 font-bold font-mono text-sm w-20 text-right" id="val-n">10,000 보</span>
+                        </div>
+                    </div>
+
+                    <!-- 회수 한계 범위 L 설정 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">기지 회수 제한 영역 (\(\pm L\) 칸)</span>
+                            <div class="flex gap-1">
+                                <button onclick="setL(200)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] text-slate-300 font-mono">200칸(Q2)</button>
+                                <button onclick="setL(300)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] text-slate-300 font-mono">300칸(Q5)</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="input-l" min="50" max="600" step="10" value="200" 
+                                   class="flex-grow accent-rose-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <span class="text-indigo-300 font-bold font-mono text-sm w-20 text-right" id="val-l">200 칸</span>
+                        </div>
+                    </div>
+
+                    <!-- 가상 기기 규모 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">시험 운용 탐사선 대수</span>
+                            <span class="text-slate-400 font-mono" id="val-trials">2,000 대</span>
+                        </div>
+                        <input type="range" id="input-trials" min="500" max="5000" step="100" value="2000" 
+                               class="w-full accent-rose-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <button id="btn-run" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-rose-950/40 transition active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                        🚀 대규모 가상 탐색 시뮬레이션 기동
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: 결과 그래프 및 데이터 대조군 (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- 정규근사 비교 차트 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md flex-grow flex flex-col justify-between min-h-[380px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                            📊 이항분포의 실제 분포 vs 정규근사 곡선 \(N(0, N)\)
+                        </h2>
+                        <p class="text-[11px] text-slate-400">붉은색 배경은 회수 불가 영역을 의미하며, 파란색 내부 구간만 안전한 회수가 가능합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Chart container -->
+                <div class="relative w-full h-[280px] bg-slate-950/50 rounded-xl p-2 border border-slate-800/40">
+                    <canvas id="limit-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- 회수 데이터 실시간 분석 보드 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        📡 실시간 탐사선 회수율 검증국
+                    </h2>
+                    <span class="text-xs text-rose-400 font-bold font-mono">Recovery Control</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <!-- 퍼짐성(표준편차) -->
+                    <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 font-semibold block mb-1">📍 공간적 분산정도</span>
+                            <span class="text-xs text-rose-400 block mb-3 font-mono">표준편차 \(\sigma = \sqrt{N}\)</span>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">이론적 수치:</span>
+                                <span class="font-mono text-white" id="stat-std-theory">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">실제 계산치:</span>
+                                <span class="font-mono text-rose-400 font-bold" id="stat-std-emp">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 이론 회수율 (정규분포 적분) -->
+                    <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 font-semibold block mb-1">🎯 이론적 정상 회수율</span>
+                            <span class="text-xs text-indigo-400 block mb-3 font-mono">정규분포 적분 확률</span>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">계산된 Z-범위:</span>
+                                <span class="font-mono text-slate-300" id="stat-z-range">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">적분 확률값:</span>
+                                <span class="font-mono text-indigo-400 font-extrabold text-sm" id="stat-prob-theory">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 실제 회수율 (시뮬레이션 실측) -->
+                    <div class="p-4 bg-gradient-to-br from-rose-950/30 to-slate-900 border border-rose-500/10 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] text-rose-300 font-semibold block mb-1">🏁 시뮬레이션 실측 회수율</span>
+                            <span class="text-[10px] text-slate-400 block mb-2 leading-tight">투입된 로봇 중 지정 범위 (\(\pm L\)) 이내 복귀율</span>
+                        </div>
+                        <div class="text-center py-1">
+                            <span class="text-2xl font-extrabold font-orbitron text-rose-400" id="stat-prob-emp">- %</span>
+                        </div>
+                        <div class="text-[10px] text-center bg-slate-950 py-1 rounded border border-slate-800 mt-1 font-semibold text-slate-300" id="verdict-box">
+                            시뮬레이터를 가동해 주세요.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 px-4 py-4 text-center text-[11px] text-slate-500">
+        <p>© 2026 IASA 우주 개발 데이터 센터. 이 도구는 이항분포의 정규근사를 이용하여 우주 탐사선의 가용 범위를 실시간 설계하고 최적의 회수 한계를 계산합니다.</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        const inputN = document.getElementById('input-n');
+        const valN = document.getElementById('val-n');
+        const inputL = document.getElementById('input-l');
+        const valL = document.getElementById('val-l');
+        const inputTrials = document.getElementById('input-trials');
+        const valTrials = document.getElementById('val-trials');
+        const btnRun = document.getElementById('btn-run');
+
+        const statStdTheory = document.getElementById('stat-std-theory');
+        const statStdEmp = document.getElementById('stat-std-emp');
+        const statZRange = document.getElementById('stat-z-range');
+        const statProbTheory = document.getElementById('stat-prob-theory');
+        const statProbEmp = document.getElementById('stat-prob-emp');
+        const verdictBox = document.getElementById('verdict-box');
+
+        let limitChart = null;
+
+        // Input listeners
+        inputN.addEventListener('input', (e) => {
+            valN.textContent = `${parseInt(e.target.value).toLocaleString()} 보`;
+            runSimulation();
+        });
+
+        inputL.addEventListener('input', (e) => {
+            valL.textContent = `${e.target.value} 칸`;
+            runSimulation();
+        });
+
+        inputTrials.addEventListener('input', (e) => {
+            valTrials.textContent = `${parseInt(e.target.value).toLocaleString()} 대`;
+        });
+
+        function setN(val) {
+            inputN.value = val;
+            valN.textContent = `${val.toLocaleString()} 보`;
+            runSimulation();
+        }
+
+        function setL(val) {
+            inputL.value = val;
+            valL.textContent = `${val} 칸`;
+            runSimulation();
+        }
+
+        // Standard Normal CDF (error function approximation)
+        function erf(x) {
+            // constants
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            // Save the sign of x
+            const sign = (x < 0) ? -1 : 1;
+            x = Math.abs(x);
+
+            // A&S Formula 7.1.26
+            const t = 1.0/(1.0 + p*x);
+            const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*Math.exp(-x*x);
+
+            return sign*y;
+        }
+
+        function normalCDF(x, mean, std) {
+            return 0.5 * (1 + erf((x - mean) / (std * Math.sqrt(2))));
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('limit-chart').getContext('2d');
+            limitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '실측 로봇 분포',
+                            data: [],
+                            backgroundColor: [],
+                            borderColor: [],
+                            borderWidth: 1.5,
+                            borderRadius: 3,
+                            barPercentage: 0.85,
+                            categoryPercentage: 0.85,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: '이론적 정규근사 곡선 N(0, N)',
+                            data: [],
+                            borderColor: 'rgba(244, 63, 94, 0.95)', // Rose color
+                            borderWidth: 2.5,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.4,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#94a3b8',
+                                boxWidth: 15,
+                                font: { size: 10 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0b0f19',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: (items) => `위치: ${items[0].label} 칸`,
+                                label: (item) => ` 비율: ${(item.raw * 100).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.15)' },
+                            ticks: { color: '#64748b', font: { family: 'Orbitron', size: 9 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.15)' },
+                            ticks: {
+                                color: '#64748b',
+                                callback: (v) => `${(v * 100).toFixed(1)}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function runSimulation() {
+            const N = parseInt(inputN.value);
+            const L = parseInt(inputL.value);
+            const trials = parseInt(inputTrials.value);
+
+            const stdTheory = Math.sqrt(N);
+            statStdTheory.textContent = stdTheory.toFixed(2);
+
+            // Compute actual random walks using Gaussian approximation for speed & extreme scalability
+            // since N can be up to 50,000, 1-by-1 step calculation is sluggish for 5000 trials.
+            // Under CLT, X_N is incredibly accurately modeled by N(0, N). We can also apply a continuity correction.
+            const finalPositions = [];
+            let inRangeCount = 0;
+
+            for (let i = 0; i < trials; i++) {
+                // Box-Muller transform for high quality normal random variables
+                let u = 0, v = 0;
+                while(u === 0) u = Math.random(); 
+                while(v === 0) v = Math.random();
+                const normalRand = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                
+                // Scale to N(0, N) and round to the nearest even/odd integer corresponding to N parity
+                let rawPos = normalRand * stdTheory;
+                let pos = Math.round(rawPos);
+                if ((N % 2 === 0 && Math.abs(pos) % 2 !== 0) || (N % 2 !== 0 && Math.abs(pos) % 2 === 0)) {
+                    pos = pos > rawPos ? pos - 1 : pos + 1;
+                }
+
+                finalPositions.push(pos);
+                if (Math.abs(pos) <= L) {
+                    inRangeCount++;
+                }
+            }
+
+            // Calculations
+            const sum = finalPositions.reduce((a, b) => a + b, 0);
+            const avg = sum / trials;
+            let varSum = 0;
+            finalPositions.forEach(p => { varSum += Math.pow(p - avg, 2); });
+            const stdEmp = Math.sqrt(varSum / trials);
+            statStdEmp.textContent = stdEmp.toFixed(2);
+
+            // Z range and Theoretical Integral Prob
+            const zVal = L / stdTheory;
+            statZRange.textContent = `[-${zVal.toFixed(2)}σ, +${zVal.toFixed(2)}σ]`;
+            const probTheoryVal = normalCDF(L, 0, stdTheory) - normalCDF(-L, 0, stdTheory);
+            statProbTheory.textContent = `${(probTheoryVal * 100).toFixed(2)}%`;
+
+            // Empirical Prob
+            const probEmpVal = inRangeCount / trials;
+            statProbEmp.textContent = `${(probEmpVal * 100).toFixed(2)}%`;
+
+            // Status verdict update
+            let verdict = "";
+            let colorClass = "";
+            if (probEmpVal >= 0.945) {
+                verdict = "💚 안전 (회수 보장성 95% 이상)";
+                colorClass = "text-[10px] text-center bg-emerald-950/40 text-emerald-300 py-1 rounded border border-emerald-500/20 mt-1 font-semibold";
+            } else if (probEmpVal >= 0.80) {
+                verdict = "⚠️ 주의 (회수 위험도 약간 높음)";
+                colorClass = "text-[10px] text-center bg-amber-950/40 text-amber-300 py-1 rounded border border-amber-500/20 mt-1 font-semibold";
+            } else {
+                verdict = "🚨 위험 (로봇 대다수 미회수 우려)";
+                colorClass = "text-[10px] text-center bg-rose-950/40 text-rose-300 py-1 rounded border border-rose-500/20 mt-1 font-semibold";
+            }
+            verdictBox.textContent = verdict;
+            verdictBox.className = colorClass;
+
+            // Generate nice bins for charting
+            // We'll bin the data into 35 intervals
+            const binCount = 35;
+            const chartMax = Math.ceil(3.2 * stdTheory);
+            const chartMin = -chartMax;
+            const stepWidth = (chartMax - chartMin) / binCount;
+
+            const labels = [];
+            const barData = [];
+            const lineData = [];
+            const barBgColors = [];
+            const barBorderColors = [];
+
+            for (let i = 0; i < binCount; i++) {
+                const binMid = chartMin + (i + 0.5) * stepWidth;
+                labels.push(Math.round(binMid));
+
+                // Empirical bin counting
+                let count = 0;
+                finalPositions.forEach(p => {
+                    if (p >= binMid - stepWidth/2 && p < binMid + stepWidth/2) {
+                        count++;
+                    }
+                });
+                // Normalizing to percentage per step width
+                barData.push(count / trials);
+
+                // Normal density equation for line graph
+                const exponent = -Math.pow(binMid, 2) / (2 * N);
+                const density = (1 / (stdTheory * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+                // Scaled to match the bins width
+                lineData.push(density * stepWidth);
+
+                // Color based on recovery boundary L
+                if (Math.abs(binMid) <= L) {
+                    barBgColors.push('rgba(99, 102, 241, 0.4)'); // Indigo for safe
+                    barBorderColors.push('rgba(129, 140, 248, 0.8)');
+                } else {
+                    barBgColors.push('rgba(244, 63, 94, 0.25)'); // Red for unreachable
+                    barBorderColors.push('rgba(251, 113, 133, 0.6)');
+                }
+            }
+
+            limitChart.data.labels = labels;
+            limitChart.data.datasets[0].data = barData;
+            limitChart.data.datasets[0].backgroundColor = barBgColors;
+            limitChart.data.datasets[0].borderColor = barBorderColors;
+            limitChart.data.datasets[1].data = lineData;
+            limitChart.update('none');
+        }
+
+        btnRun.addEventListener('click', () => {
+            runSimulation();
+        });
+
+        function renderMath() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        window.onload = function() {
+            initChart();
+            renderMath();
+            runSimulation();
+        }
+    </script>
+</body>
+</html>

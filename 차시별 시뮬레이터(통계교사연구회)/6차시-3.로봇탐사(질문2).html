@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IASA 로봇 랜덤워크 시뮬레이터</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for beautiful distribution graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- KaTeX for beautiful math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="window.renderMath&&renderMath()"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    }
+    .orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col pb-12">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/60 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <!-- Sci-Fi Robot Icon -->
+        <div class="p-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-black tracking-wider text-cyan-400 orbitron">IASA RANDOM WALK SIMULATOR</h1>
+          <p class="text-xs text-slate-400">외계행성 무인탐사 로봇의 랜덤워크 분포 변화 실증 시스템</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 rounded-full px-4 py-1.5 text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span>IASA 우주 탐사선 링크 정상 작동 중</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+    
+    <!-- Left Panel: Controls and Explanations (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- 1. 제어 센터 (Control Center) -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
+        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-800 pb-2">
+          <span class="text-cyan-400 orbitron">01.</span> 시뮬레이션 설정 제어
+        </h2>
+        
+        <div class="space-y-5">
+          <!-- N 설정 (이동 횟수) -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-sm font-medium text-slate-300">기본 이동 횟수 ($N$)</label>
+              <span id="valN" class="text-sm font-bold text-cyan-400 orbitron">100</span>
+            </div>
+            <input id="rangeN" type="range" min="10" max="250" value="100" step="10" 
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+            <p class="text-[11px] text-slate-400 mt-1">비교군은 기본 이동 횟수의 4배인 $4N$회 이동합니다.</p>
+          </div>
+
+          <!-- 시뮬레이션 횟수 (반복 시행 수) -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-sm font-medium text-slate-300">시뮬레이션 로봇 수 (시행 횟수)</label>
+              <span id="valTrials" class="text-sm font-bold text-violet-400 orbitron">1,000</span>
+            </div>
+            <input id="rangeTrials" type="range" min="100" max="5000" value="1000" step="100" 
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-violet-500">
+            <p class="text-[11px] text-slate-400 mt-1">시행 횟수가 많을수록 이론적 수학 확률 밀도와 정합해집니다.</p>
+          </div>
+
+          <!-- 애니메이션 속도 제어 -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-sm font-medium text-slate-300">실시간 이동 시각화 속도</label>
+              <span id="valSpeed" class="text-sm font-bold text-amber-400">보통</span>
+            </div>
+            <input id="rangeSpeed" type="range" min="1" max="3" value="2" step="1" 
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+          </div>
+
+          <!-- 실행 버튼들 -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button id="btnRun" class="col-span-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              <span>시뮬레이션</span>
+            </button>
+            <button id="btnStop" disabled class="col-span-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-300 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span>정지</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 수학적 해설 가이드 (Mathematical Guide) -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl flex-grow overflow-y-auto max-h-[460px]">
+        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-800 pb-2">
+          <span class="text-emerald-400 orbitron">02.</span> 탐사 및 교과 연계 해설
+        </h2>
+        
+        <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+          <!-- (1) 해설 -->
+          <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/60">
+            <h3 class="font-bold text-cyan-400 mb-1 flex items-center gap-2">
+              <span class="bg-cyan-950 text-cyan-400 text-xs px-2 py-0.5 rounded border border-cyan-800">질문 (1) 해설</span>
+            </h3>
+            <p class="mb-2">로봇의 1회 이동 시 위치 변화량 $Y$의 분포는 다음과 같습니다:</p>
+            <div class="text-xs bg-slate-900/80 p-2 rounded text-slate-300 mb-2">
+              $P(Y = 1) = \frac{1}{2}$ , $P(Y = -1) = \frac{1}{2}$
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+              <li><strong>기댓값:</strong> $E(Y) = 1 \cdot \frac{1}{2} + (-1) \cdot \frac{1}{2} = 0$</li>
+              <li><strong>분산:</strong> $V(Y) = E(Y^2) - \{E(Y)\}^2 = [1^2 \cdot \frac{1}{2} + (-1)^2 \cdot \frac{1}{2}] - 0^2 = 1$</li>
+            </ul>
+          </div>
+
+          <!-- (2) 해설 -->
+          <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/60">
+            <h3 class="font-bold text-violet-400 mb-1 flex items-center gap-2">
+              <span class="bg-violet-950 text-violet-400 text-xs px-2 py-0.5 rounded border border-violet-800">질문 (2) 해설</span>
+            </h3>
+            <p class="mb-1">각 이동이 독립이므로, $N$번 이동한 뒤 최종 위치 $X_N = Y_1 + Y_2 + \cdots + Y_N$의 확률적 특성은 자료 1에 의해 다음과 같이 계산됩니다:</p>
+            <ul class="list-disc list-inside space-y-1 text-xs text-slate-300 mt-2">
+              <li><strong>평균 위치:</strong> $E(X_N) = \sum_{i=1}^N E(Y_i) = 0$</li>
+              <li><strong>위치 분산:</strong> $V(X_N) = \sum_{i=1}^N V(Y_i) = N$</li>
+              <li><strong>표준편차 (퍼짐 정도):</strong> $\sigma(X_N) = \sqrt{V(X_N)} = \sqrt{N}$</li>
+            </ul>
+          </div>
+
+          <!-- (3) 핵심증명 -->
+          <div class="bg-amber-950/20 p-4 rounded-xl border border-amber-800/30">
+            <h3 class="font-bold text-amber-400 mb-1 flex items-center gap-2">
+              <span class="bg-amber-950 text-amber-400 text-xs px-2 py-0.5 rounded border border-amber-800">질문 (3) 핵심 토론</span>
+            </h3>
+            <p class="text-xs text-amber-200">
+              이동 횟수를 $4$배로 늘린다면 ($N \to 4N$), 이론적 표준편차는 어떻게 변할까요?
+            </p>
+            <div class="bg-slate-950/80 p-2 rounded text-xs text-center font-mono my-2 text-slate-300">
+              $\sigma(X_{4N}) = \sqrt{V(X_{4N})} = \sqrt{4N} = 2\sqrt{N} = 2\sigma(X_N)$
+            </div>
+            <p class="text-xs text-slate-300">
+              즉, <strong>이동 횟수가 4배가 되면 최종 위치의 퍼짐 정도(표준편차)는 정확히 2배가 됩니다.</strong> 확률적 분포 영역이 단지 2배 넓어지기 때문에, 연구팀은 로봇이 더 광범위한 영역을 조사하더라도 기지 회수 가능성을 유지할 수 있는 최적의 균형점을 찾을 수 있습니다!
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Panel: Visualizer (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+      
+      <!-- 1. 실시간 랜덤워크 애니메이션 패널 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <span class="text-cyan-400 orbitron">03.</span> 실시간 우주 탐사 시뮬레이터 (표본 5대)
+          </h2>
+          <span class="text-xs text-slate-400">현재 탐사 스텝: <strong id="stepCounter" class="text-cyan-400 orbitron">0</strong></span>
+        </div>
+
+        <!-- 1D Grid View Visualizer -->
+        <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 overflow-hidden min-h-[160px] flex flex-col justify-center gap-3">
+          <!-- Grid Background lines -->
+          <div class="absolute inset-0 flex justify-between pointer-events-none opacity-5 px-8">
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+            <div class="w-px bg-slate-400 h-full"></div>
+          </div>
+
+          <!-- Base Center Station Marker (0) -->
+          <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-dashed bg-cyan-500/20 -translate-x-1/2 flex flex-col justify-between py-1 pointer-events-none">
+            <span class="text-[9px] text-cyan-400/60 bg-slate-950 px-1 rounded -translate-x-1/2">기지 (0)</span>
+            <span class="text-[9px] text-cyan-400/60 bg-slate-950 px-1 rounded -translate-x-1/2">BASE STATION</span>
+          </div>
+
+          <!-- Live Robot Tracks -->
+          <div id="robotTracks" class="space-y-3 relative z-10">
+            <!-- 5 Robots will be dynamically created here -->
+          </div>
+        </div>
+
+        <div class="flex gap-2 justify-center mt-2">
+          <div class="flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2.5 h-2.5 rounded bg-cyan-500 inline-block"></span> 로봇 1
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2.5 h-2.5 rounded bg-violet-500 inline-block"></span> 로봇 2
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span> 로봇 3
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2.5 h-2.5 rounded bg-rose-500 inline-block"></span> 로봇 4
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> 로봇 5
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 결과 분석 대시보드 및 최종 위치 분포 비교도 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl flex flex-col">
+        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2 mb-4">
+          <span class="text-cyan-400 orbitron">04.</span> 최종 위치 분포 정밀 분석대 ($N$ vs $4N$)
+        </h2>
+
+        <!-- Stats Board -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <!-- 통계값 1: 기본군 평균 -->
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex flex-col justify-between">
+            <span class="text-xs text-slate-400">평균 위치 $E(X)$</span>
+            <div>
+              <div class="text-base font-bold text-cyan-400 flex items-baseline gap-1 mt-1">
+                <span id="statMeanN" class="orbitron">0.00</span>
+                <span class="text-[10px] text-slate-400">(N)</span>
+              </div>
+              <div class="text-xs font-bold text-violet-400 flex items-baseline gap-1">
+                <span id="statMean4N" class="orbitron">0.00</span>
+                <span class="text-[10px] text-slate-400">(4N)</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 통계값 2: 기본군 분산 -->
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex flex-col justify-between">
+            <span class="text-xs text-slate-400">실측 위치 분산 $V(X)$</span>
+            <div>
+              <div class="text-sm font-bold text-cyan-400 mt-1">
+                <span id="statVarN" class="orbitron">0.0</span> 
+                <span class="text-[10px] text-slate-400">(이론: <span id="theoVarN">100</span>)</span>
+              </div>
+              <div class="text-sm font-bold text-violet-400">
+                <span id="statVar4N" class="orbitron">0.0</span>
+                <span class="text-[10px] text-slate-400">(이론: <span id="theoVar4N">400</span>)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 통계값 3: 실측 표준편차 -->
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex flex-col justify-between">
+            <span class="text-xs text-slate-400">실측 표준편차 $\sigma(X)$</span>
+            <div>
+              <div class="text-sm font-bold text-cyan-400 mt-1">
+                <span id="statSDN" class="orbitron">0.00</span>
+                <span class="text-[10px] text-slate-400">(이론: <span id="theoSDN">10.0</span>)</span>
+              </div>
+              <div class="text-sm font-bold text-violet-400">
+                <span id="statSD4N" class="orbitron">0.00</span>
+                <span class="text-[10px] text-slate-400">(이론: <span id="theoSD4N">20.0</span>)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 통계값 4: 최종 배율 비교 -->
+          <div class="bg-gradient-to-br from-amber-950/30 to-slate-900 border border-amber-800/40 p-3 rounded-xl flex flex-col justify-between">
+            <span class="text-xs text-amber-400 font-bold">실제 퍼짐 비율 (SD 배율)</span>
+            <div>
+              <div class="text-2xl font-black text-amber-400 orbitron leading-none mt-1" id="statRatio">
+                0.00<span class="text-sm font-medium">배</span>
+              </div>
+              <p class="text-[9px] text-slate-400 mt-1">이론값: <strong>2.00배</strong> ($\sqrt{4}$배)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribution Chart Canvas -->
+        <div class="relative bg-slate-950 border border-slate-800 p-4 rounded-xl h-[320px]">
+          <canvas id="distributionChart"></canvas>
+        </div>
+
+        <div class="mt-3 p-3 bg-slate-950/80 rounded-lg border border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 bg-cyan-500/20 border border-cyan-400 rounded"></span>
+              <span>$N$번 이동 군</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 bg-violet-500/20 border border-violet-400 rounded"></span>
+              <span>$4N$번 이동 군</span>
+            </div>
+          </div>
+          <span class="hidden sm:inline">※ 정규화 확률 밀도 그래프로 면적의 합은 1입니다.</span>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl mx-auto text-center mt-12 text-xs text-slate-500 px-6">
+    <p>© 2026 IASA - Interstellar Aerospace Exploration Program. 본 자료는 고등학교 확률과 통계 교과의 독립시행 및 통계적 추정 단원 실증을 위해 제작되었습니다.</p>
+  </footer>
+
+  <!-- Notification Popup (Replaces alerts) -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-cyan-500 text-cyan-400 px-5 py-3 rounded-xl shadow-2xl opacity-0 transform translate-y-2 transition-all duration-300 pointer-events-none z-50 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+    </svg>
+    <span id="toastMsg" class="text-xs font-semibold"></span>
+  </div>
+
+  <script>
+    // --- Variables & Constants ---
+    let N = 100;
+    let trials = 1000;
+    let simulationSpeed = 2; // 1: Slow, 2: Mid, 3: Fast
+    let currentStep = 0;
+    let isRunning = false;
+    let animationTimer = null;
+    
+    // Live visualization robots data (5 instances)
+    const liveRobots = [
+      { id: 1, pos: 0, steps: [], color: 'bg-cyan-500', border: 'border-cyan-400', text: 'text-cyan-400', trail: [] },
+      { id: 2, pos: 0, steps: [], color: 'bg-violet-500', border: 'border-violet-400', text: 'text-violet-400', trail: [] },
+      { id: 3, pos: 0, steps: [], color: 'bg-amber-500', border: 'border-amber-400', text: 'text-amber-400', trail: [] },
+      { id: 4, pos: 0, steps: [], color: 'bg-rose-500', border: 'border-rose-400', text: 'text-rose-400', trail: [] },
+      { id: 5, pos: 0, steps: [], color: 'bg-emerald-500', border: 'border-emerald-400', text: 'text-emerald-400', trail: [] }
+    ];
+
+    // Data containers for all simulated trials (N and 4N)
+    let finalPositionsN = [];
+    let finalPositions4N = [];
+
+    // Chart.js configuration
+    let distChart = null;
+
+    // --- HTML Elements ---
+    const rangeN = document.getElementById('rangeN');
+    const valN = document.getElementById('valN');
+    const rangeTrials = document.getElementById('rangeTrials');
+    const valTrials = document.getElementById('valTrials');
+    const rangeSpeed = document.getElementById('rangeSpeed');
+    const valSpeed = document.getElementById('valSpeed');
+    const btnRun = document.getElementById('btnRun');
+    const btnStop = document.getElementById('btnStop');
+    const stepCounter = document.getElementById('stepCounter');
+    const robotTracks = document.getElementById('robotTracks');
+
+    // UI Stats fields
+    const statMeanN = document.getElementById('statMeanN');
+    const statMean4N = document.getElementById('statMean4N');
+    const statVarN = document.getElementById('statVarN');
+    const statVar4N = document.getElementById('statVar4N');
+    const statSDN = document.getElementById('statSDN');
+    const statSD4N = document.getElementById('statSD4N');
+    const statRatio = document.getElementById('statRatio');
+
+    const theoVarN = document.getElementById('theoVarN');
+    const theoVar4N = document.getElementById('theoVar4N');
+    const theoSDN = document.getElementById('theoSDN');
+    const theoSD4N = document.getElementById('theoSD4N');
+
+    // --- Math Rendering ---
+    function renderMath() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // --- Toast Alert Helper ---
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = message;
+      toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+      }, 3000);
+    }
+
+    // --- Initialization & UI Sync ---
+    function updateLimits() {
+      N = parseInt(rangeN.value);
+      trials = parseInt(rangeTrials.value);
+      
+      valN.innerText = N;
+      valTrials.innerText = trials.toLocaleString();
+
+      // Update theoretical expectations
+      theoVarN.innerText = N;
+      theoVar4N.innerText = 4 * N;
+      theoSDN.innerText = Math.sqrt(N).toFixed(2);
+      theoSD4N.innerText = Math.sqrt(4 * N).toFixed(2);
+
+      renderMath();
+    }
+
+    rangeN.addEventListener('input', updateLimits);
+    rangeTrials.addEventListener('input', updateLimits);
+    
+    rangeSpeed.addEventListener('input', () => {
+      const speeds = ["느림", "보통", "빠름"];
+      simulationSpeed = parseInt(rangeSpeed.value);
+      valSpeed.innerText = speeds[simulationSpeed - 1];
+    });
+
+    // --- Robot Live Tracks HTML generation ---
+    function initRobotTracks() {
+      robotTracks.innerHTML = '';
+      liveRobots.forEach(robot => {
+        robot.pos = 0;
+        robot.steps = [0];
+        robot.trail = [];
+
+        const trackRow = document.createElement('div');
+        trackRow.className = 'flex items-center gap-4 py-1 border-b border-slate-900/60 last:border-0';
+        trackRow.innerHTML = `
+          <div class="w-16 flex-shrink-0 text-xs font-bold ${robot.text}">로봇 #${robot.id}</div>
+          <div class="flex-grow bg-slate-900 h-6 rounded-full relative overflow-hidden border border-slate-800/40 flex items-center">
+            <!-- Central visual center point inside path -->
+            <div class="absolute left-1/2 w-0.5 bg-cyan-500/10 h-full -translate-x-1/2"></div>
+            <!-- Tail line trail -->
+            <div id="trail-${robot.id}" class="absolute h-1.5 ${robot.color}/20 rounded transition-all duration-200"></div>
+            <!-- Moving robot dot -->
+            <div id="dot-${robot.id}" class="absolute w-4.5 h-4.5 rounded-full ${robot.color} border-2 ${robot.border} shadow-lg shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center -translate-x-1/2" style="left: 50%;">
+              <span class="text-[8px] font-black text-slate-950 orbitron">R</span>
+            </div>
+          </div>
+          <div id="val-${robot.id}" class="w-10 text-right text-xs font-mono font-bold ${robot.text} orbitron">0</div>
+        `;
+        robotTracks.appendChild(trackRow);
+      });
+    }
+
+    // Update coordinates in real-time visualizer
+    // Let's dynamically scale grid width depending on maximum coordinate to make it fit perfectly
+    function updateRobotVisualPositions() {
+      // Find maximum distance from 0 to dynamically calibrate the bounds
+      let maxAbsPos = 1;
+      liveRobots.forEach(r => {
+        const absVal = Math.abs(r.pos);
+        if (absVal > maxAbsPos) maxAbsPos = absVal;
+      });
+      
+      // Dynamic boundary padding to avoid hitting edge abruptly
+      const boundary = Math.max(10, Math.ceil(maxAbsPos * 1.3));
+
+      liveRobots.forEach(r => {
+        const dot = document.getElementById(`dot-${r.id}`);
+        const trail = document.getElementById(`trail-${r.id}`);
+        const valText = document.getElementById(`val-${r.id}`);
+
+        if (!dot || !trail || !valText) return;
+
+        // Map pos (-boundary to +boundary) to percentage (0% to 100%)
+        const percentage = 50 + (r.pos / (boundary * 2)) * 100;
+        dot.style.left = `${percentage}%`;
+
+        // Calculate and draw line from 50% to current position
+        const centerOffset = (r.pos / (boundary * 2)) * 100;
+        if (centerOffset >= 0) {
+          trail.style.left = '50%';
+          trail.style.width = `${centerOffset}%`;
+        } else {
+          trail.style.left = `${50 + centerOffset}%`;
+          trail.style.width = `${Math.abs(centerOffset)}%`;
+        }
+
+        // Display current position with direction sign
+        valText.innerText = (r.pos > 0 ? '+' : '') + r.pos;
+      });
+    }
+
+    // --- Math Calculations ---
+    function getMean(arr) {
+      if (arr.length === 0) return 0;
+      return arr.reduce((acc, val) => acc + val, 0) / arr.length;
+    }
+
+    function getVariance(arr, mean) {
+      if (arr.length <= 1) return 0;
+      const squaredDiffs = arr.map(val => Math.pow(val - mean, 2));
+      return squaredDiffs.reduce((acc, val) => acc + val, 0) / (arr.length - 1);
+    }
+
+    // Helper to generate probability density of a normal distribution
+    function normalPDF(x, mean, std) {
+      if (std === 0) return 0;
+      return (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(std, 2)));
+    }
+
+    // Generate accurate dynamic histogram bins and curves
+    function generateDistributionStatsAndChart() {
+      // 1. Calculate stats
+      const meanN = getMean(finalPositionsN);
+      const mean4N = getMean(finalPositions4N);
+      
+      const varN = getVariance(finalPositionsN, meanN);
+      const var4N = getVariance(finalPositions4N, mean4N);
+
+      const sdN = Math.sqrt(varN);
+      const sd4N = Math.sqrt(var4N);
+
+      const ratio = sdN > 0 ? (sd4N / sdN) : 0;
+
+      // 2. Render stats in dashboard UI
+      statMeanN.innerText = meanN.toFixed(2);
+      statMean4N.innerText = mean4N.toFixed(2);
+      
+      statVarN.innerText = varN.toFixed(1);
+      statVar4N.innerText = var4N.toFixed(1);
+
+      statSDN.innerText = sdN.toFixed(2);
+      statSD4N.innerText = sd4N.toFixed(2);
+
+      statRatio.innerText = ratio.toFixed(2) + '배';
+      
+      // Visual feedback color based on proximity to the physical limit of 2.0
+      if (Math.abs(ratio - 2.0) < 0.1) {
+        statRatio.className = "text-2xl font-black text-emerald-400 orbitron leading-none mt-1";
+      } else {
+        statRatio.className = "text-2xl font-black text-amber-400 orbitron leading-none mt-1";
+      }
+
+      // 3. Build bins for histograms to feed Chart.js
+      // Find the absolute range to keep charts aligned perfectly and beautifully
+      const maxVal = Math.max(
+        ...finalPositionsN.map(Math.abs), 
+        ...finalPositions4N.map(Math.abs),
+        3 * Math.sqrt(4 * N) // standard 3-sigma boundaries
+      );
+      
+      // Space bins based on the theoretical bounds
+      const binWidth = Math.max(2, Math.ceil(maxVal / 15)); 
+      const labels = [];
+      const dataN = [];
+      const data4N = [];
+      const lineN = [];
+      const line4N = [];
+
+      // Create bins from -maxVal to +maxVal
+      const roundedMax = Math.ceil(maxVal / binWidth) * binWidth;
+      for (let i = -roundedMax; i <= roundedMax; i += binWidth) {
+        labels.push(i);
+        
+        // Count frequencies inside the bin range [i - binWidth/2, i + binWidth/2]
+        const countN = finalPositionsN.filter(v => v >= i - binWidth/2 && v < i + binWidth/2).length;
+        const count4N = finalPositions4N.filter(v => v >= i - binWidth/2 && v < i + binWidth/2).length;
+
+        // Normalise frequencies to create proper probability density matching the line curves
+        dataN.push(countN / (trials * binWidth));
+        data4N.push(count4N / (trials * binWidth));
+
+        // Theoretical Normal curves
+        lineN.push(normalPDF(i, 0, Math.sqrt(N)));
+        line4N.push(normalPDF(i, 0, Math.sqrt(4 * N)));
+      }
+
+      // Update Chart.js datasets
+      if (distChart) {
+        distChart.data.labels = labels;
+        distChart.data.datasets[0].data = dataN;
+        distChart.data.datasets[1].data = lineN;
+        distChart.data.datasets[2].data = data4N;
+        distChart.data.datasets[3].data = line4N;
+        distChart.update('none'); // silent update for optimal performance
+      }
+    }
+
+    // --- Init Distribution Chart ---
+    function initChart() {
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      
+      if (distChart) {
+        distChart.destroy();
+      }
+
+      distChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'N번 시행 실측 분포 (히스토그램)',
+              data: [],
+              backgroundColor: 'rgba(6, 182, 212, 0.25)', // Cyan
+              borderColor: 'rgba(6, 182, 212, 0.7)',
+              borderWidth: 1.5,
+              borderRadius: 4,
+              order: 2,
+              barPercentage: 0.85
+            },
+            {
+              label: 'N번 시행 이론 확률밀도선 (정규분포)',
+              data: [],
+              type: 'line',
+              borderColor: '#06b6d4',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.4,
+              order: 1
+            },
+            {
+              label: '4N번 시행 실측 분포 (히스토그램)',
+              data: [],
+              backgroundColor: 'rgba(139, 92, 246, 0.25)', // Violet
+              borderColor: 'rgba(139, 92, 246, 0.7)',
+              borderWidth: 1.5,
+              borderRadius: 4,
+              order: 4,
+              barPercentage: 0.85
+            },
+            {
+              label: '4N번 시행 이론 확률밀도선 (정규분포)',
+              data: [],
+              type: 'line',
+              borderColor: '#8b5cf6',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.4,
+              order: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false // handled in clean custom markup below
+            },
+            tooltip: {
+              enabled: true,
+              mode: 'index',
+              intersect: false,
+              backgroundColor: '#0f172a',
+              titleColor: '#06b6d4',
+              bodyColor: '#e2e8f0',
+              borderColor: '#334155',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              grid: {
+                color: '#1e293b'
+              },
+              ticks: {
+                color: '#64748b',
+                font: { size: 10 }
+              }
+            },
+            x: {
+              grid: {
+                color: 'transparent'
+              },
+              ticks: {
+                color: '#64748b',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- Simulation Core Loop ---
+    function generateSingleStep(currentPos) {
+      // 50% probability to move left or right
+      const rand = Math.random();
+      return rand < 0.5 ? currentPos + 1 : currentPos - 1;
+    }
+
+    function runSimulationStep() {
+      currentStep++;
+      stepCounter.innerText = currentStep;
+
+      // Update positions for live visualization robots
+      liveRobots.forEach(robot => {
+        robot.pos = generateSingleStep(robot.pos);
+        robot.steps.push(robot.pos);
+      });
+
+      updateRobotVisualPositions();
+
+      // Check if we reached the limit
+      if (currentStep >= 4 * N) {
+        stopSimulation();
+        showToast("탐사가 종료되었습니다! 최종 분포 데이터를 수집 완료했습니다.");
+        return;
+      }
+
+      // Schedule next tick
+      let speedMs = 120;
+      if (simulationSpeed === 1) speedMs = 300;
+      else if (simulationSpeed === 3) speedMs = 30;
+
+      animationTimer = setTimeout(runSimulationStep, speedMs);
+    }
+
+    function startSimulation() {
+      if (isRunning) return;
+      isRunning = true;
+
+      // Disable inputs during active visualization run
+      rangeN.disabled = true;
+      rangeTrials.disabled = true;
+      btnRun.disabled = true;
+      btnStop.disabled = false;
+
+      // Reset live visualizer states
+      currentStep = 0;
+      initRobotTracks();
+      updateRobotVisualPositions();
+
+      // Generate massive datasets in memory immediately for accurate statistics
+      finalPositionsN = [];
+      finalPositions4N = [];
+
+      for (let t = 0; t < trials; t++) {
+        // Run N-step trial
+        let posN = 0;
+        for (let i = 0; i < N; i++) {
+          posN = generateSingleStep(posN);
+        }
+        finalPositionsN.push(posN);
+
+        // Run 4N-step trial
+        let pos4N = posN; // keep going from N up to 4N
+        for (let i = N; i < 4 * N; i++) {
+          pos4N = generateSingleStep(pos4N);
+        }
+        finalPositions4N.push(pos4N);
+      }
+
+      // Populate graphs and statistics
+      generateDistributionStatsAndChart();
+
+      // Begin animation ticks
+      runSimulationStep();
+    }
+
+    function stopSimulation() {
+      if (!isRunning) return;
+      isRunning = false;
+
+      if (animationTimer) {
+        clearTimeout(animationTimer);
+      }
+
+      rangeN.disabled = false;
+      rangeTrials.disabled = false;
+      btnRun.disabled = false;
+      btnStop.disabled = true;
+    }
+
+    btnRun.addEventListener('click', startSimulation);
+    btnStop.addEventListener('click', stopSimulation);
+
+    // Initial setups
+    window.addEventListener('load', () => {
+      updateLimits();
+      initRobotTracks();
+      updateRobotVisualPositions();
+      initChart();
+      
+      // Default placeholder charts when loading initially
+      for (let i = 0; i < trials; i++) {
+        finalPositionsN.push(0);
+        finalPositions4N.push(0);
+      }
+      generateDistributionStatsAndChart();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IASA 랜덤워크 시뮬레이터</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for distribution rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- LaTeX rendering using KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="(function(){var f=function(){renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})};if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f)}else{f()}})()"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        .math-block {
+            background-color: #1e293b;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg">
+                    <i data-lucide="orbit" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">IASA 행성 탐사 랜덤워크 시뮬레이터</h1>
+                    <p class="text-xs text-slate-400">외계행성 무인탐사로봇의 이동 모델링 및 통계적 검증</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-slate-300">
+                    학번: <span class="text-blue-400 font-semibold">IASA-2026</span>
+                </span>
+                <span class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-slate-300">
+                    이름: <span class="text-blue-400 font-semibold">탐구원</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Panel: Controls & Problem Statement (4 Cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Problem Context -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="book-open" class="text-blue-500 w-5 h-5"></i>
+                    <h2 class="text-md font-bold text-slate-200">탐사 제시문 요약</h2>
+                </div>
+                <div class="text-sm text-slate-400 leading-relaxed space-y-2">
+                    <p>인류는 먼지 폭풍과 자기장 교란이 심한 <strong>IASA 행성</strong>에 무인탐사로봇을 보냈습니다.</p>
+                    <p>로봇은 기지 $O(0)$에서 출발하여, 독립적으로 매 순간 확률 $\frac{1}{2}$로 오른쪽($+1$) 또는 왼쪽($-1$)으로 1칸 이동합니다.</p>
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 mt-2">
+                        <span class="text-amber-400 font-semibold">핵심 탐구 질문:</span>
+                        <p class="text-slate-300 mt-1 font-medium">"이동 횟수를 4배 늘리면, 로봇의 최종 위치 분포는 평균을 중심으로 얼마나 더 넓게 퍼질까?"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters & Controls -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <i data-lucide="sliders" class="text-blue-500 w-5 h-5"></i>
+                    <h2 class="text-md font-bold text-slate-200">시뮬레이션 설정</h2>
+                </div>
+
+                <!-- Simulation Params -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="text-slate-400">기본 이동 횟수 ($N$)</label>
+                            <span class="text-blue-400 font-bold" id="val-n">50</span>
+                        </div>
+                        <input id="param-n" type="range" min="10" max="200" step="10" value="50" 
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <p class="text-xs text-slate-500 mt-1">4배 증가된 조건은 자동으로 <span id="val-4n">200</span>회로 설정됩니다.</p>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="text-slate-400 font-medium">로봇 샘플 수 (시행 횟수)</label>
+                            <span class="text-emerald-400 font-bold" id="val-sims">2000</span>
+                        </div>
+                        <input id="param-sims" type="range" min="500" max="10000" step="500" value="2000" 
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                        <p class="text-xs text-slate-500 mt-1">값을 키울수록 이론적인 정규분포 곡선에 수렴합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <button id="btn-run" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                    <span>랜덤워크 시뮬레이션 시작</span>
+                </button>
+            </div>
+
+            <!-- Theory Sheet -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <button id="toggle-math" class="w-full flex items-center justify-between text-slate-200 hover:text-white font-bold text-sm">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="file-text" class="text-indigo-400 w-5 h-5"></i>
+                        <span>수학적 문제 해결 (이론적 증명)</span>
+                    </span>
+                    <i data-lucide="chevron-down" id="math-chevron" class="w-4 h-4 transition-transform"></i>
+                </button>
+                <div id="math-content" class="hidden mt-4 pt-4 border-t border-slate-800 text-xs text-slate-300 space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                    <div>
+                        <h4 class="font-bold text-blue-400 text-sm mb-1">[질문 1의 (1)] 단일 이동 $Y$의 분포</h4>
+                        <p>확률변수 $Y$는 오른쪽($1$) 또는 왼쪽($-1$)으로 각각 $\frac{1}{2}$의 확률을 가집니다.</p>
+                        <div class="math-block">
+                            $$E(Y) = 1 \cdot \frac{1}{2} + (-1) \cdot \frac{1}{2} = 0$$
+                            $$V(Y) = E(Y^2) - \{E(Y)\}^2 = \left( 1^2 \cdot \frac{1}{2} + (-1)^2 \cdot \frac{1}{2} \right) - 0^2 = 1$$
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-blue-400 text-sm mb-1">[질문 1의 (2)] $N$번 이동 후 위치 $X_N$</h4>
+                        <p>서로 독립인 변수들의 합에 대한 기댓값과 분산의 성질(자료 1)에 의해:</p>
+                        <div class="math-block">
+                            $$E(X_N) = E(Y_1 + \dots + Y_N) = \sum_{i=1}^N E(Y_i) = 0$$
+                            $$V(X_N) = V(Y_1 + \dots + Y_N) = \sum_{i=1}^N V(Y_i) = N$$
+                        </div>
+                        <p class="mt-1 text-slate-400">따라서 표준편차는 $\sigma(X_N) = \sqrt{V(X_N)} = \sqrt{N}$ 입니다.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-amber-400 text-sm mb-1">[질문 1의 (3)] 분포의 퍼짐 비교</h4>
+                        <p>이동 횟수를 $4$배 늘려 $4N$이 되었을 때의 최종 위치를 $X_{4N}$이라 하면:</p>
+                        <div class="math-block">
+                            $$\sigma(X_{4N}) = \sqrt{4N} = 2\sqrt{N} = 2\sigma(X_N)$$
+                        </div>
+                        <p class="leading-relaxed">즉, <strong>이동 횟수를 4배 늘리면 표준편차(분포가 퍼지는 반경)는 정확히 $2$배($\sqrt{4}$배) 넓어집니다.</strong> 이는 탐사로봇이 4배 더 멀리까지 탐사할 수 있지만, 기지로 복귀해 회수하기는 2배 더 어려워짐을 의미합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Panel: Visualization & Verification (8 Cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Real-time Verification Board -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">기본 조건 ($N$회 이동) 표준편차</div>
+                        <div class="text-2xl font-black text-blue-400 mt-1" id="stat-sd-n">-</div>
+                        <div class="text-[10px] text-slate-500 mt-1">이론값: <span id="theory-sd-n">0.00</span></div>
+                    </div>
+                    <div class="border-t border-slate-800/80 mt-3 pt-2 text-[10px] text-slate-400 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> 기본 그룹 분포 너비
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">4배 조건 ($4N$회 이동) 표준편차</div>
+                        <div class="text-2xl font-black text-violet-400 mt-1" id="stat-sd-4n">-</div>
+                        <div class="text-[10px] text-slate-500 mt-1">이론값: <span id="theory-sd-4n">0.00</span></div>
+                    </div>
+                    <div class="border-t border-slate-800/80 mt-3 pt-2 text-[10px] text-slate-400 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-violet-500"></span> 4배 그룹 분포 너비
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-indigo-950 rounded-2xl p-4 shadow-lg bg-gradient-to-br from-slate-900 to-indigo-950/40 flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs text-indigo-300 font-bold flex items-center gap-1">
+                            <span>분포 확대 배율</span>
+                            <span class="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 text-[9px] rounded font-mono">σ(4N) / σ(N)</span>
+                        </div>
+                        <div class="text-3xl font-black text-emerald-400 mt-1" id="stat-ratio">계산 대기 중</div>
+                        <div class="text-[10px] text-slate-400 mt-1">수학적 이론 예측치: <span class="font-bold text-slate-300">2.00 배</span></div>
+                    </div>
+                    <div class="border-t border-indigo-900/50 mt-3 pt-2 text-[10px] text-indigo-300 flex items-center gap-1">
+                        <i data-lucide="badge-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span id="verif-msg">시뮬레이션을 시작하여 검증하세요.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizer Tabs & Screen -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-grow flex flex-col min-h-[480px]">
+                
+                <!-- Tab Headers -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <div class="flex gap-2">
+                        <button id="tab-dist" class="px-4 py-2 text-sm font-bold rounded-lg bg-slate-800 text-blue-400 border border-blue-500/20 flex items-center gap-1.5 transition-all">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                            <span>최종 위치 분포 비교</span>
+                        </button>
+                        <button id="tab-paths" class="px-4 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 flex items-center gap-1.5 transition-all">
+                            <i data-lucide="git-commit" class="w-4 h-4"></i>
+                            <span>실시간 랜덤워크 경로</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 hidden sm:block">
+                        <span class="inline-flex items-center gap-1">
+                            <span class="w-2.5 h-2.5 rounded bg-blue-500/30 border border-blue-400/50"></span> N회 이동
+                        </span>
+                        <span class="inline-flex items-center gap-1 ml-3">
+                            <span class="w-2.5 h-2.5 rounded bg-violet-500/30 border border-violet-400/50"></span> 4N회 이동
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Distribution Chart Screen -->
+                <div id="panel-dist" class="flex-grow flex flex-col justify-center relative">
+                    <div id="chart-loader" class="absolute inset-0 bg-slate-900/90 flex flex-col items-center justify-center z-10 gap-3 rounded-xl">
+                        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-sm text-slate-400">대량의 탐사 데이터를 기반으로 확률 분포를 구성하는 중...</p>
+                    </div>
+                    <div class="w-full h-[320px] md:h-[380px]">
+                        <canvas id="distChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-slate-500 mt-4">
+                        양쪽 그래프 모두 평균 $0$을 중심으로 종형 곡선(정규분포)을 이룹니다. <br class="hidden sm:inline"/>
+                        자주색($4N$) 분포가 파란색($N$) 분포보다 가로축 방향으로 정확히 <strong>$\approx 2$배 더 넓게 퍼져 있음</strong>을 한눈에 볼 수 있습니다.
+                    </p>
+                </div>
+
+                <!-- Tab 2: Paths Animation Screen -->
+                <div id="panel-paths" class="hidden flex-grow flex flex-col justify-between">
+                    <div class="relative w-full h-[300px] md:h-[360px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80">
+                        <canvas id="pathCanvas" class="w-full h-full"></canvas>
+                        
+                        <!-- Mini Legend/Overlay -->
+                        <div class="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 text-[11px] text-slate-300 space-y-1">
+                            <div class="font-bold border-b border-slate-800 pb-1 mb-1 text-slate-200">궤적 시각화 (일부 로봇 샘플)</div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-0.5 bg-blue-500 inline-block"></span>
+                                <span>$N$ 구간 진행 완료</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-0.5 bg-violet-500 inline-block"></span>
+                                <span>$4N$ 구간 진행 완료</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-3 text-center">
+                        세로축은 시간(이동 스텝), 가로축은 로봇의 위치(기지 기준 좌우 이동량)를 보여줍니다.<br/>
+                        이동 단계가 진행될수록 로봇이 퍼져 나가는 기하학적 형태가 포물선 날개꼴 모양을 띄게 됩니다.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+        <p>© 2026 Incheon Academy of Science & Arts (IASA) - 확률과 통계 탐구 프로젝트</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // Lucide Icons Init
+        lucide.createIcons();
+
+        // DOM elements
+        const paramN = document.getElementById('param-n');
+        const valN = document.getElementById('val-n');
+        const val4n = document.getElementById('val-4n');
+        const paramSims = document.getElementById('param-sims');
+        const valSims = document.getElementById('val-sims');
+        const btnRun = document.getElementById('btn-run');
+        
+        const toggleMath = document.getElementById('toggle-math');
+        const mathContent = document.getElementById('math-content');
+        const mathChevron = document.getElementById('math-chevron');
+
+        const tabDist = document.getElementById('tab-dist');
+        const tabPaths = document.getElementById('tab-paths');
+        const panelDist = document.getElementById('panel-dist');
+        const panelPaths = document.getElementById('panel-paths');
+        const chartLoader = document.getElementById('chart-loader');
+
+        const statSdN = document.getElementById('stat-sd-n');
+        const statSd4N = document.getElementById('stat-sd-4n');
+        const statRatio = document.getElementById('stat-ratio');
+        const verifMsg = document.getElementById('verif-msg');
+        
+        const theorySdN = document.getElementById('theory-sd-n');
+        const theorySd4n = document.getElementById('theory-sd-4n');
+
+        // State variables
+        let currentN = parseInt(paramN.value);
+        let currentSims = parseInt(paramSims.value);
+        let activeTab = 'dist'; // 'dist' | 'paths'
+        let chartInstance = null;
+        let animationFrameId = null;
+
+        // Param Inputs Update
+        paramN.addEventListener('input', (e) => {
+            currentN = parseInt(e.target.value);
+            valN.textContent = currentN;
+            val4n.textContent = currentN * 4;
+            updateTheoreticalValues();
+        });
+
+        paramSims.addEventListener('input', (e) => {
+            currentSims = parseInt(e.target.value);
+            valSims.textContent = currentSims.toLocaleString();
+        });
+
+        // Toggle Theory Sheet
+        toggleMath.addEventListener('click', () => {
+            const isHidden = mathContent.classList.contains('hidden');
+            if (isHidden) {
+                mathContent.classList.remove('hidden');
+                mathChevron.style.transform = 'rotate(180deg)';
+            } else {
+                mathContent.classList.add('hidden');
+                mathChevron.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Toggle Tabs
+        tabDist.addEventListener('click', () => switchTab('dist'));
+        tabPaths.addEventListener('click', () => switchTab('paths'));
+
+        function switchTab(tab) {
+            activeTab = tab;
+            if (tab === 'dist') {
+                tabDist.className = "px-4 py-2 text-sm font-bold rounded-lg bg-slate-800 text-blue-400 border border-blue-500/20 flex items-center gap-1.5 transition-all";
+                tabPaths.className = "px-4 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 flex items-center gap-1.5 transition-all";
+                panelDist.classList.remove('hidden');
+                panelPaths.classList.add('hidden');
+            } else {
+                tabPaths.className = "px-4 py-2 text-sm font-bold rounded-lg bg-slate-800 text-violet-400 border border-violet-500/20 flex items-center gap-1.5 transition-all";
+                tabDist.className = "px-4 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 flex items-center gap-1.5 transition-all";
+                panelPaths.classList.remove('hidden');
+                panelDist.classList.add('hidden');
+                // Canvas redraw when visible
+                triggerPathAnimation();
+            }
+        }
+
+        // Theoretical calculation update
+        function updateTheoreticalValues() {
+            const expectedSdN = Math.sqrt(currentN);
+            const expectedSd4N = Math.sqrt(currentN * 4);
+            theorySdN.textContent = expectedSdN.toFixed(3);
+            theorySd4n.textContent = expectedSd4N.toFixed(3);
+        }
+
+        // Initialize theoretical displays
+        updateTheoreticalValues();
+
+        // Core Random Walk Generation Engine
+        function generateRandomWalkData(nSteps, count) {
+            // Generates final position for 'count' robots after 'nSteps'
+            const finalPositions = [];
+            const samplePaths = []; // Track actual paths of some samples for animation
+            const pathSampleSize = Math.min(count, 35);
+
+            for (let s = 0; s < count; s++) {
+                let position = 0;
+                let path = [0];
+                for (let step = 0; step < nSteps; step++) {
+                    const move = Math.random() < 0.5 ? 1 : -1;
+                    position += move;
+                    if (s < pathSampleSize) {
+                        path.push(position);
+                    }
+                }
+                finalPositions.push(position);
+                if (s < pathSampleSize) {
+                    samplePaths.push(path);
+                }
+            }
+            return { finalPositions, samplePaths };
+        }
+
+        // Main Execution
+        btnRun.addEventListener('click', runSimulation);
+
+        let simulationResults = null;
+
+        function runSimulation() {
+            // Show Loader
+            chartLoader.classList.remove('hidden');
+            btnRun.disabled = true;
+            btnRun.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i><span>탐사 로봇 시뮬레이션 계산 중...</span>`;
+            lucide.createIcons();
+
+            // Set timeout to avoid blocking main thread UI update
+            setTimeout(() => {
+                const n = currentN;
+                const fourN = n * 4;
+                const totalRobots = currentSims;
+
+                // Perform simulations
+                const resultsN = generateRandomWalkData(n, totalRobots);
+                const results4N = generateRandomWalkData(fourN, totalRobots);
+
+                simulationResults = {
+                    n,
+                    fourN,
+                    resultsN,
+                    results4N
+                };
+
+                // Analyze Statistics
+                const statsN = calculateStats(resultsN.finalPositions);
+                const stats4N = calculateStats(results4N.finalPositions);
+                const ratio = stats4N.stdDev / statsN.stdDev;
+
+                // Render metrics on the board
+                statSdN.textContent = statsN.stdDev.toFixed(3);
+                statSd4N.textContent = stats4N.stdDev.toFixed(3);
+                statRatio.textContent = `${ratio.toFixed(3)} 배`;
+
+                // Color of the comparison ratio box
+                const errorPercent = Math.abs(ratio - 2.0) / 2.0 * 100;
+                if (errorPercent < 5) {
+                    verifMsg.innerHTML = `<span class="text-emerald-400 font-bold">검증 성공!</span> 이론치인 2.0배에 매우 정밀하게 일치합니다. (오차 ${errorPercent.toFixed(2)}%)`;
+                } else {
+                    verifMsg.innerHTML = `<span class="text-amber-400 font-bold">검증 완료.</span> 이론치인 2.0배와 근사합니다. (오차 ${errorPercent.toFixed(2)}%)`;
+                }
+
+                // Render Charts
+                renderDistributionCharts(resultsN.finalPositions, results4N.finalPositions, n, fourN);
+                
+                // If in path animation mode, trigger redraw
+                if (activeTab === 'paths') {
+                    triggerPathAnimation();
+                }
+
+                // Close Loader
+                chartLoader.classList.add('hidden');
+                btnRun.disabled = false;
+                btnRun.innerHTML = `<i data-lucide="play" class="w-5 h-5"></i><span>랜덤워크 시뮬레이션 시작</span>`;
+                lucide.createIcons();
+            }, 100);
+        }
+
+        // Helper: Statistical analysis
+        function calculateStats(arr) {
+            const size = arr.length;
+            const mean = arr.reduce((acc, v) => acc + v, 0) / size;
+            const variance = arr.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / size;
+            const stdDev = Math.sqrt(variance);
+            return { mean, variance, stdDev };
+        }
+
+        // Chart Drawing using ChartJS
+        function renderDistributionCharts(dataN, data4N, n, fourN) {
+            // Find appropriate boundaries
+            const minN = Math.min(...dataN);
+            const maxN = Math.max(...dataN);
+            const min4N = Math.min(...data4N);
+            const max4N = Math.max(...data4N);
+            
+            // Outer limits of position binning
+            const minLimit = Math.min(minN, min4N) - 2;
+            const maxLimit = Math.max(maxN, max4N) + 2;
+
+            // Generate buckets (we only have integers for random walks, odd/even depends on N)
+            // Even step size leads to even positions, odd steps to odd positions.
+            const labels = [];
+            const countsN = {};
+            const counts4N = {};
+
+            for (let i = minLimit; i <= maxLimit; i++) {
+                // To keep rendering balanced, include all steps
+                labels.push(i);
+                countsN[i] = 0;
+                counts4N[i] = 0;
+            }
+
+            dataN.forEach(v => { if(countsN[v] !== undefined) countsN[v]++; });
+            data4N.forEach(v => { if(counts4N[v] !== undefined) counts4N[v]++; });
+
+            // Normalize counts to relative frequency
+            const freqN = labels.map(lbl => (countsN[lbl] / dataN.length) * 100);
+            const freq4N = labels.map(lbl => (counts4N[lbl] / data4N.length) * 100);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('distChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: `기본 조건 (N = ${n} 회 이동)`,
+                            data: freqN,
+                            borderColor: 'rgba(59, 130, 246, 1)', // blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2.5,
+                            pointRadius: labels.length > 80 ? 0 : 2,
+                        },
+                        {
+                            label: `4배 연장 조건 (4N = ${fourN} 회 이동)`,
+                            data: freq4N,
+                            borderColor: 'rgba(139, 92, 246, 1)', // violet-500
+                            backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2.5,
+                            pointRadius: labels.length > 80 ? 0 : 2,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8',
+                                font: {
+                                    family: 'Noto Sans KR',
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `위치 ${context.label}: 비율 ${context.raw.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#1e293b'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxTicksLimit: 25,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '최종 도달 위치 (기지 0 기준 좌우 오프셋)',
+                                color: '#64748b',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#1e293b'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) { return value + '%'; }
+                            },
+                            title: {
+                                display: true,
+                                text: '로봇 분포 비율',
+                                color: '#64748b',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // HTML Canvas Path Animation Engine
+        function triggerPathAnimation() {
+            if (!simulationResults) return;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            const canvas = document.getElementById('pathCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set internal resolution based on CSS sizing
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const width = rect.width;
+            const height = rect.height;
+
+            const maxSteps = simulationResults.fourN;
+            const samplesN = simulationResults.resultsN.samplePaths;
+            const samples4N = simulationResults.results4N.samplePaths;
+
+            // Maximum position amplitude seen across all sample trajectories for coordinate scaling
+            let maxPos = 10;
+            samples4N.forEach(p => {
+                p.forEach(pos => {
+                    if (Math.abs(pos) > maxPos) maxPos = Math.abs(pos);
+                });
+            });
+            maxPos = Math.max(maxPos, 15); // Safeguard boundary minimum
+
+            let currentAnimProgress = 0; // Animation counter: from 0 to maxSteps
+
+            function animate() {
+                // Clear and style background
+                ctx.fillStyle = '#020617';
+                ctx.fillRect(0, 0, width, height);
+
+                // Draw central base coordinate line (O 기지)
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(width / 2, 0);
+                ctx.lineTo(width / 2, height);
+                ctx.stroke();
+
+                // Draw horizontal threshold grid lines
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 1;
+                for (let h = 0.1; h < 1.0; h += 0.1) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, height * h);
+                    ctx.lineTo(width, height * h);
+                    ctx.stroke();
+                }
+
+                // Coordinate converter functions
+                const getX = (val) => (width / 2) + (val / (maxPos * 1.15)) * (width / 2);
+                const getY = (step) => (step / maxSteps) * (height - 30) + 15;
+
+                // 1. Draw Paths for Group 4N (Full Scale - Violet)
+                ctx.lineWidth = 1.2;
+                samples4N.forEach((path, idx) => {
+                    ctx.strokeStyle = `rgba(139, 92, 246, ${0.15 + (0.35 * (idx % 3 === 0 ? 1 : 0.5))})`;
+                    ctx.beginPath();
+                    ctx.moveTo(getX(path[0]), getY(0));
+                    
+                    const drawLimit = Math.min(currentAnimProgress, path.length - 1);
+                    for (let step = 1; step <= drawLimit; step++) {
+                        ctx.lineTo(getX(path[step]), getY(step));
+                    }
+                    ctx.stroke();
+                });
+
+                // 2. Draw Paths for Group N (Segment Scale - Blue)
+                ctx.lineWidth = 1.8;
+                samplesN.forEach((path, idx) => {
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.35 + (0.45 * (idx % 3 === 0 ? 1 : 0.5))})`;
+                    ctx.beginPath();
+                    ctx.moveTo(getX(path[0]), getY(0));
+
+                    const drawLimit = Math.min(currentAnimProgress, path.length - 1, simulationResults.n);
+                    for (let step = 1; step <= drawLimit; step++) {
+                        ctx.lineTo(getX(path[step]), getY(step));
+                    }
+                    ctx.stroke();
+                });
+
+                // Marker highlighting the time horizon limits
+                // N Limit
+                const nY = getY(simulationResults.n);
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(10, nY);
+                ctx.lineTo(width - 10, nY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.95)';
+                ctx.font = '9px monospace';
+                ctx.fillText(`N (${simulationResults.n} 스텝 한계선)`, 15, nY - 4);
+
+                // 4N Limit (Final)
+                const fourNY = getY(simulationResults.fourN);
+                ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(10, fourNY);
+                ctx.lineTo(width - 10, fourNY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(139, 92, 246, 0.95)';
+                ctx.font = '9px monospace';
+                ctx.fillText(`4N (${simulationResults.fourN} 최종 한계선)`, 15, fourNY - 4);
+
+                // Increment frame step
+                if (currentAnimProgress < maxSteps) {
+                    currentAnimProgress += Math.max(1, Math.floor(maxSteps / 120)); // speeds up long animations
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    // Loop animation back after short delay
+                    setTimeout(() => {
+                        currentAnimProgress = 0;
+                        if (activeTab === 'paths' && simulationResults) {
+                            animationFrameId = requestAnimationFrame(animate);
+                        }
+                    }, 4000);
+                }
+            }
+
+            // Fire animation loop
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Initialize with default run
+        window.onload = function() {
+            runSimulation();
+        }
+    </script>
+</body>
+</html>

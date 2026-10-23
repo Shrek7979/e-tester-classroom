@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>차시별 시뮬레이터 시연 목차 · IASA 통계실험 교사연구회</title>
+<style>
+:root{--bg:#f7f7f2;--paper:#fff;--ink:#253a31;--sub:#526459;--green:#3b674d;--deep:#1e3d32;--lime:#e8ef94;--line:#dfe4d9;--soft:#edf1e7;--orange:#d3815b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI','Malgun Gothic',sans-serif;font-size:17px;line-height:1.7}
+a{color:var(--green)}
+header{background:var(--deep);color:#fff;padding:40px 28px 34px}
+.wrap{max-width:1120px;margin:0 auto}
+.eyebrow{font-size:13px;letter-spacing:1.5px;font-weight:700;color:var(--lime);margin:0 0 10px}
+header h1{font-size:34px;margin:0 0 10px;letter-spacing:-.5px;line-height:1.3}
+header p{margin:0;color:#d7e2d5;font-size:17px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.toc a{color:#fff;background:#ffffff1f;border:1px solid #ffffff3a;border-radius:100px;padding:6px 14px;font-size:14px;text-decoration:none}
+.toc a:hover{background:#ffffff33}
+main{padding:28px 28px 60px}
+.prep{background:#fff6e8;border:1px solid #f0dcc0;border-radius:12px;padding:18px 22px;margin:0 0 26px}
+.prep h2{font-size:18px;margin:0 0 8px;color:#8b532e}
+.prep ul{margin:0;padding-left:20px;font-size:15px}
+section{margin:30px 0}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--green);padding-bottom:8px;margin-bottom:16px}
+.sec-head .num{font-size:14px;font-weight:700;letter-spacing:1px;color:var(--green)}
+.sec-head h2{font-size:24px;margin:0;letter-spacing:-.4px}
+.sec-head .concept{color:var(--sub);font-size:15px;margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.card h3{font-size:19px;margin:0;line-height:1.4}
+.card .kind{font-size:12px;font-weight:700;letter-spacing:.8px;color:var(--green);background:var(--soft);border-radius:5px;padding:3px 8px;display:inline-block;align-self:flex-start}
+.card .kind.net{color:#8b532e;background:#fff0df}
+.card .kind.static{color:#4b5d8c;background:#eceff8}
+.card p{margin:0;font-size:15px;color:var(--sub)}
+.card ul{margin:0;padding-left:18px;font-size:15px}
+.card ul li{margin:2px 0}
+.open{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--green);color:#fff;text-decoration:none;font-weight:600;border-radius:8px;padding:11px 16px;font-size:15px}
+.open:hover{filter:brightness(.95)}
+.open.alt{background:var(--paper);color:var(--green);border:1px solid #c1cbb7}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btns .open{margin-top:0;flex:1}
+.tip{font-size:14px;color:var(--sub);background:var(--soft);border-radius:8px;padding:10px 14px}
+footer{max-width:1120px;margin:0 auto;padding:20px 28px 40px;color:var(--sub);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:650px){header{padding:28px 18px}header h1{font-size:26px}main{padding:20px 18px 40px}.sec-head{flex-wrap:wrap}.sec-head .concept{margin-left:0;flex-basis:100%}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<p class="eyebrow">IASA 통계실험 교사연구회 · 바이브코딩을 활용한 실험 중심 통계교육</p>
+<h1>차시별 시뮬레이터 시연 목차</h1>
+<p>8차시 통계 탐구에서 쓰는 시뮬레이터를 차시 순서로 모았습니다. 각 카드의 버튼을 누르면 새 탭에서 바로 열립니다.</p>
+<nav class="toc" aria-label="차시 바로가기">
+<a href="#s1">1차시 큰수의 법칙</a><a href="#s2">2차시 몬테카를로</a><a href="#s3">3차시 갈톤보드</a><a href="#s4">4차시 표본평균</a><a href="#s5">5차시 정규근사</a><a href="#s6">6차시 랜덤워크</a><a href="#s7">7차시 벤포드</a><a href="#s8">8차시 e-Tester</a>
+</nav>
+</div></header>
+
+<main><div class="wrap">
+<div class="prep">
+<h2>시연 전 확인</h2>
+<ul>
+<li><b>인터넷 연결</b>: 6차시 로봇 탐사 4종은 차트·수식 라이브러리를 인터넷에서 불러오므로 연결이 없으면 화면이 비어 보입니다. 3·5차시의 ‘결과 저장하기’ 버튼도 인터넷이 필요하며, 그 외 기능은 오프라인에서도 됩니다.</li>
+<li><b>1·4차시 노트북</b>: Colab 노트북이라 브라우저에서 실행되지 않습니다. 실행 결과(그래프·표)를 담은 페이지를 열어 시연하고, 조건을 바꿔 보이려면 원본 .ipynb를 Colab에 업로드하세요.</li>
+<li><b>화면 배율</b>: 프로젝터에서는 브라우저 확대(Ctrl +)를 110~125%로 두면 슬라이더 값이 잘 보입니다.</li>
+<li><b>탭 정리</b>: 시연 순서대로 미리 탭을 열어 두면 로딩 없이 넘어갈 수 있습니다.</li>
+</ul>
+</div>
+
+<section id="s1">
+<div class="sec-head"><span class="num">1차시</span><h2>큰수의 법칙</h2><span class="concept">동전과 주사위의 상대도수 수렴 · 오차한계와 비용</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind static">실행 결과 페이지 · Colab 노트북</span>
+<h3>확률실험 노트북</h3>
+<p>동전 10,000회 던지기를 5번 반복한 누적 상대도수, 시행 수에 따른 상대도수 분포, 참확률 5% 뽑기의 오차한계와 비용 계산입니다.</p>
+<ul>
+<li>로그 스케일 그래프에서 다섯 경로가 0.5로 모이지만 매번 오차가 줄지는 않는다는 점</li>
+<li>n = 60, 600, 6000의 히스토그램 폭 비교, 표준편차가 1/√n에 비례</li>
+<li>오차한계 0.01, 0.005를 처음 만족하는 시행 수와 총비용 그래프</li>
+</ul>
+<div class="btns"><a class="open" href="1차시. 확률실험(실행결과).html" target="_blank" rel="noopener">실행 결과 열기 ↗</a><a class="open alt" href="1차시. 확률실험.ipynb" download>원본 .ipynb 받기</a></div>
+</article>
+</div>
+</section>
+
+<section id="s2">
+<div class="sec-head"><span class="num">2차시</span><h2>몬테카를로 방법</h2><span class="concept">무작위 점으로 원주율 추정 · 발전기 용량 결정</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind">HTML 시뮬레이터</span>
+<h3>원주율 시뮬레이터</h3>
+<p>정사각형 안에 점을 뿌려 단위원에 들어간 비율로 π를 추정합니다. 점의 수 N, 난수 시드, 점 찍는 속도를 조절합니다.</p>
+<ul>
+<li>N을 1,000 → 100,000으로 늘리며 추정값과 절대 오차의 변화</li>
+<li>같은 시드로 다시 시작하면 결과가 재현되는 것</li>
+</ul>
+<a class="open" href="2차시-1. monte-carlo-원주율 시뮬레이터.html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+<article class="card">
+<span class="kind">HTML 시뮬레이터</span>
+<h3>원주율 시뮬레이터 + 배치 반복 분석</h3>
+<p>위 시뮬레이터에 검사 도구를 더한 판입니다. 여러 N 조건을 M번씩 반복해 추정값의 흩어짐을 비교합니다.</p>
+<ul>
+<li>점 추출 수 N과 독립 반복 횟수 M의 역할 구분</li>
+<li>N이 4배가 될 때 추정값의 퍼짐이 어떻게 줄어드는지</li>
+</ul>
+<a class="open" href="2차시-2. monte-carlo-원주율 시뮬레이터-검사도구 추가.html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+<article class="card">
+<span class="kind">HTML 시뮬레이터</span>
+<h3>발전기 용량 몬테카를로</h3>
+<p>총전력 수요를 무작위로 생성해 용량 B가 수요를 감당할 확률을 추정합니다. 실생활 의사결정으로 확장하는 사례입니다.</p>
+<ul>
+<li>정상 운영 확률이 95% 이상이 되는 가장 작은 용량 찾기</li>
+<li>반복 M을 늘리면 용량별 확률 곡선이 안정되는 모습</li>
+</ul>
+<a class="open" href="2차시-3. monte-carlo-발전기 용량 시뮬레이터.html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="s3">
+<div class="sec-head"><span class="num">3차시</span><h2>갈톤보드와 이항분포</h2><span class="concept">구슬의 움직임과 히스토그램 · 게임 규칙 설계</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind">HTML 시뮬레이터</span>
+<h3>갈톤보드: 확률 실험기</h3>
+<p>소개, 실험 1(목표 칸 미션), 실험 2(자유 탐구) 탭으로 구성됩니다. 층 수, 오른쪽으로 갈 확률 p, 한 번에 떨어뜨릴 공 개수를 조절합니다.</p>
+<ul>
+<li>‘새 미션 받기’로 목표 칸을 받고, 평균 위치가 np에 가깝다는 힌트로 p를 조절해 맞추기</li>
+<li>p = 0.5와 p = 0.3에서 분포의 중심과 모양 비교</li>
+<li>평가 프로젝트 조건(특별 상품 5~10%, 일반 상품 30% 이상, 평균 비용 &lt; 플레이 비용)으로 보상 규칙 설계</li>
+</ul>
+<a class="open" href="3차시. 갈톤보드 시뮬레이터.html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="s4">
+<div class="sec-head"><span class="num">4차시</span><h2>표본평균과 중심극한정리</h2><span class="concept">표본 크기에 따른 평균 분포 비교 · 신뢰구간</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind static">실행 결과 페이지 · Colab 노트북</span>
+<h3>추정 노트북</h3>
+<p>배터리 수명 모집단에서 표본 크기 25와 100으로 표본평균을 반복 추출해 분포를 비교하고, 신뢰구간과 오차한계, 조사 비용을 함께 봅니다.</p>
+<ul>
+<li>표본 크기가 4배가 되면 표본평균 분포의 폭이 절반으로 (SE = σ/√n)</li>
+<li>여러 번 만든 95% 신뢰구간 중 모평균을 놓치는 구간 세어 보기</li>
+<li>원하는 오차한계를 만족하는 표본 크기와 비용 대비 정밀도</li>
+</ul>
+<div class="btns"><a class="open" href="4차시. 추정(실행결과).html" target="_blank" rel="noopener">실행 결과 열기 ↗</a><a class="open alt" href="4차시. 추정.ipynb" download>원본 .ipynb 받기</a></div>
+</article>
+</div>
+</section>
+
+<section id="s5">
+<div class="sec-head"><span class="num">5차시</span><h2>이항분포와 정규분포</h2><span class="concept">정규근사가 적절한 조건 탐색</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind">HTML 시뮬레이터</span>
+<h3>이항분포와 정규분포 비교 시뮬레이터</h3>
+<p>갈톤보드 결과 위에 이론 이항분포와 정규분포 곡선을 겹쳐 그리고 ‘닮음 점수’로 비교합니다. 실험 1~3 탭으로 조건을 바꿔 봅니다.</p>
+<ul>
+<li>n = 10, p = 0.5에서 ‘반복 실험 1000개 추가’로 곡선이 맞아 들어가는 과정</li>
+<li>p = 0.1로 낮추면 같은 n에서도 닮음 점수가 떨어지는 것</li>
+<li>n뿐 아니라 np와 n(1 − p)를 함께 확인해야 하는 이유</li>
+</ul>
+<a class="open" href="5차시. 이항분포, 정규분포 시뮬레이터.html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="s6">
+<div class="sec-head"><span class="num">6차시</span><h2>랜덤워크와 탐사 전략</h2><span class="concept">외계행성 탐사 로봇 프로젝트 · 인터넷 연결 필요</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind net">HTML 시뮬레이터 · 인터넷 필요</span>
+<h3>질문 1 · 행성 탐사 랜덤워크</h3>
+<p>단일 이동 Y의 분포, N번 이동 후 위치 X_N의 분포, 분포의 퍼짐 비교를 순서대로 봅니다.</p>
+<ul>
+<li>“평균 위치가 0이라는 말은 원점에 돌아온다는 뜻일까?” 발문 후 실행</li>
+<li>N을 늘리면 평균은 0에 머물지만 퍼짐은 √N으로 커지는 것</li>
+</ul>
+<a class="open" href="6차시-2.로봇탐사(질문1).html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+<article class="card">
+<span class="kind net">HTML 시뮬레이터 · 인터넷 필요</span>
+<h3>질문 2 · 실시간 이동 시각화</h3>
+<p>로봇 여러 대의 이동을 실시간으로 그리며 도착 위치가 쌓이는 모습을 봅니다.</p>
+<ul>
+<li>시각화 속도를 늦춰 한 로봇의 경로를 따라가 보기</li>
+<li>로봇 수를 늘리며 도착 위치 분포가 종 모양으로 정리되는 과정</li>
+</ul>
+<a class="open" href="6차시-3.로봇탐사(질문2).html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+<article class="card">
+<span class="kind net">HTML 시뮬레이터 · 인터넷 필요</span>
+<h3>질문 3 · 탐사 제한과 회수율 분석</h3>
+<p>이항분포의 정규근사, 탐사 횟수를 4배로 늘릴 때 회수율이 줄어드는 역설, 회수율 95%를 보장하는 최대 탐사 수를 다룹니다.</p>
+<ul>
+<li>탐사 횟수 10K → 40K에서 회수 반경 안에 남는 비율 비교</li>
+<li>회수 반경 200칸과 300칸에서 허용 탐사 수가 어떻게 달라지는지</li>
+</ul>
+<a class="open" href="6차시-4.로봇탐사(질문3).html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+<article class="card">
+<span class="kind net">HTML 시뮬레이터 · 인터넷 필요</span>
+<h3>종합 · 탐사 최적화 샌드박스</h3>
+<p>탐사 범위, 회수 확률, 위험도를 결합한 평가지표 S를 두고 모둠별로 전략을 설계하는 종합 판입니다. 회수 확률 90% 이상 제약을 지키며 S를 최대화합니다.</p>
+<ul>
+<li>이동 횟수와 회수 반경을 바꾸며 탐사 범위와 회수 가능성의 상충 관계 확인</li>
+<li>‘이론적 최적점’과 모둠이 찾은 조건 비교, 모형의 한계 설명</li>
+</ul>
+<a class="open" href="6차시-1.로봇탐사(종합).html" target="_blank" rel="noopener">열기 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="s7">
+<div class="sec-head"><span class="num">7차시</span><h2>벤포드 법칙</h2><span class="concept">실제 데이터의 첫 자리 분포</span></div>
+<div class="tip">7차시는 전체 개요에 포함된 확장 주제로, 이 폴더에 시뮬레이터가 없습니다. 시연에서는 개요 표로 소개만 합니다.</div>
+</section>
+
+<section id="s8">
+<div class="sec-head"><span class="num">8차시</span><h2>e-Tester</h2><span class="concept">완전불일치 실험과 1/e 수렴 · 휴대폰 공동 실험</span></div>
+<div class="cards">
+<article class="card">
+<span class="kind net">웹 앱 · 인터넷 필요</span>
+<h3>e-Tester 공동 실험실</h3>
+<p>번호 타일 13개를 섞어 하나도 제자리가 아닐 확률을 함께 추정하고 자연상수 e를 발견합니다. 진행자는 노트북에서 방을 만들고, 참가자는 휴대폰으로 참가 코드를 입력합니다.</p>
+<ul>
+<li>예측 모으기 → 실험 시작 → e와 해설 공개의 세 단계를 진행자 버튼으로 전환</li>
+<li>‘우리의 데이터’ 탭을 프로젝터에 띄워 두면 2초마다 집계가 갱신</li>
+</ul>
+<div class="btns"><a class="open" href="https://shrek7979.github.io/e-tester-classroom/?host=1" target="_blank" rel="noopener">진행자 방 만들기 ↗</a><a class="open alt" href="https://shrek7979.github.io/e-tester-classroom/" target="_blank" rel="noopener">참가자 주소 ↗</a></div>
+</article>
+</div>
+</section>
+</div></main>
+
+<footer>
+<p>시뮬레이터는 교사연구회 결과보고서(2026_08_20)의 개발물이며, 화면의 숫자는 시뮬레이션 예시이지 학생 성취 자료가 아닙니다. 모든 시뮬레이터는 교육용 모형으로, 실제 설비나 탐사의 안전성을 보증하지 않습니다.</p>
+</footer>
+</body>
+</html>
