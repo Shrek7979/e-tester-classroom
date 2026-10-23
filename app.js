@@ -39,7 +39,7 @@ function queueSave(){
 function renderRoom(){
  const title=$('#roomTitle'),desc=$('#roomDescription'),actions=$('#roomActions');
  if(!S.room){title.textContent='같이 하면, 더 잘 보입니다.';desc.textContent='선생님들의 실험 결과를 한 화면에 모아 보세요.';actions.innerHTML='<button class="outline" id="joinOpen">참가 코드 입력</button><button class="dark" id="createOpen">진행자 방 만들기 ↗</button>';}
- else{title.textContent=`${S.role==='host'?'진행자':'참가자'} · 참가 코드 ${S.room}`;desc.textContent=S.demo?'리허설: 이 브라우저의 탭끼리만 연결됩니다.':`${S.name} 님 · 같은 코드를 입력한 선생님들의 결과를 합칩니다.`;actions.innerHTML='<button class="outline" id="shareOpen">초대 링크</button><button class="outline" id="retrySave">결과 다시 전송</button><button class="outline" id="leaveRoom">개인 실험으로</button>';}
+ else{const people=participants(),names=people.map(p=>String(p.name||'').trim()).filter(Boolean);const roster=`참가자 ${people.length}명`+(names.length?` · ${names.slice(0,15).join(', ')}${names.length>15?` 외 ${names.length-15}명`:''}`:'');title.textContent=`${S.role==='host'?'진행자':'참가자'} · 참가 코드 ${S.room}`;desc.textContent=S.demo?`리허설: 이 브라우저의 탭끼리만 연결됩니다. ${roster}`:`${roster} · 같은 코드를 입력한 선생님들의 결과를 합칩니다.`;actions.innerHTML='<button class="outline" id="shareOpen">초대 링크</button><button class="outline" id="retrySave">결과 다시 전송</button><button class="outline" id="leaveRoom">개인 실험으로</button>';}
  $('#hostControls').hidden=S.role!=='host';
  if(S.role==='host')$('#hostControls').innerHTML=`<div class="host-controls"><strong>전체 화면 진행</strong>${['예측 모으기','실험 시작','e와 해설 공개'].map((x,i)=>`<button class="secondary ${S.stage===i?'current':''}" data-stage="${i}" ${S.busy?'disabled':''}>${i+1}. ${x}</button>`).join('')}<button class="outline" id="newRound" ${S.busy?'disabled':''}>새 라운드</button></div>`;
  connection();

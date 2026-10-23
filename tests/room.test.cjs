@@ -20,6 +20,7 @@ function client(){
  const guest=client();await guest.click('joinOpen');guest.make('nickname').value='guest';guest.make('roomCode').value=code;await guest.submit();
  const parts=()=>shared[code].rounds[shared[code].config.epoch].participants;
  assert.equal(Object.keys(parts()).length,2);
+ await host.poll();assert.match(host.make('roomDescription').textContent,/참가자 2명 · (host, guest|guest, host)/);
  // 실시간 의견: 반응과 한 줄 의견이 진행자에게, 진행자 질문이 참가자에게 전달되고, 비우기가 양쪽에 반영된다
  await guest.click('',{react:'q'});guest.make('talkText').value='왜 1/e에 가까워지나요?';await guest.events['talkForm:submit']({preventDefault(){}});
  assert.equal(guest.make('talkText').value,'');await host.poll();
