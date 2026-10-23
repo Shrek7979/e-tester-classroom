@@ -92,7 +92,6 @@ function showShare(){info('같은 코드로 함께 실험하세요',`<p class="s
 async function reveal(){if(S.role==='guest')return;if(S.role==='host')await setConfig({stage:2});else{S.stage=2;render();}}
 function download(){const t=totals(),rows=[['별명','타일 수','예상 확률(%)','시행 횟수','완전불일치 횟수','완전불일치 비율'],...t.people.map(p=>[p.name,S.n,p.prediction??'',p.total||0,p.success||0,p.total?p.success/p.total:'']),['전체',S.n,'',t.total,t.success,t.total?t.success/t.total:'']];const safe=x=>{let s=String(x);if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};const blob=new Blob(['\uFEFF'+rows.map(r=>r.map(safe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=`e-Tester-n${S.n}-${S.room||'solo'}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 $('#roomForm').addEventListener('submit',enterRoom);
-$('#predictionValue');
 document.addEventListener('pointerdown',e=>{if(e.target.id==='autoSpeed')S.adjustingSpeed=true;});
 document.addEventListener('pointerup',()=>{if(S.adjustingSpeed){S.adjustingSpeed=false;render();}});
 document.addEventListener('pointercancel',()=>{if(S.adjustingSpeed){S.adjustingSpeed=false;render();}});

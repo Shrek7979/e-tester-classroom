@@ -42,4 +42,8 @@ dialog label,#roomError{font-size:16px}
  .steps{gap:4px}.steps button{font-size:15px;padding:16px 4px}.steps b{font-size:12px;margin-right:4px}
  .community-banner{font-size:15px}.stat-box small{font-size:13px}
  .position{font-size:12px}.legend{flex-wrap:wrap;gap:8px 14px}.n-select{gap:12px;flex-wrap:wrap}
+ .board.large{gap:4px}.board.large .position{font-size:11px;letter-spacing:-.3px}
+ .experiment-actions button:first-child{flex-basis:100%}.experiment-actions .secondary{flex:1}
 }
+/* 자리 라벨이 두 줄로 꺾여 타일이 어긋나지 않게 한다. */
+.position{white-space:nowrap}
