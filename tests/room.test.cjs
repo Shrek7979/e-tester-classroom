@@ -24,10 +24,10 @@ function client(){
  // 실시간 의견: 반응과 한 줄 의견이 진행자에게, 진행자 질문이 참가자에게 전달되고, 비우기가 양쪽에 반영된다
  await guest.click('',{react:'q'});guest.make('talkText').value='왜 1/e에 가까워지나요?';await guest.events['talkForm:submit']({preventDefault(){}});
  assert.equal(guest.make('talkText').value,'');await host.poll();
- assert.match(host.make('talkFeed').innerHTML,/왜 1\/e에 가까워지나요\?/);assert.match(host.make('talkCount').textContent,/❓ 1/);
+ assert.match(host.make('talkFeed').innerHTML,/왜 1\/e에 가까워지나요\?/);assert.match(host.make('talkCount').textContent,/❓ 1/);assert.equal(guest.make('talkCount').textContent,'의견 1');
  host.make('promptText').value='완전불일치 비율을 예상해 보세요';await host.events['promptForm:submit']({preventDefault(){}});await guest.poll();
  assert.match(guest.make('talkPrompt').textContent,/완전불일치 비율을 예상해 보세요/);assert.equal(guest.make('talkHost').hidden,true);assert.equal(host.make('talkHost').hidden,false);
- await host.click('talkClear');await guest.poll();assert.doesNotMatch(guest.make('talkFeed').innerHTML,/1\/e에 가까워지나요/);assert.match(guest.make('talkCount').textContent,/❓ 0/);
+ await host.click('talkClear');await guest.poll();assert.doesNotMatch(guest.make('talkFeed').innerHTML,/1\/e에 가까워지나요/);assert.equal(guest.make('talkCount').textContent,'의견 0');assert.match(host.make('talkCount').textContent,/❓ 0/);
  await host.click('',{stage:'1'});await guest.poll();await host.click('',{run:'10'});await guest.click('',{run:'1000'});await host.poll();
  assert.equal(Object.values(parts()).reduce((s,p)=>s+p.total,0),1010);
  await host.click('',{tab:'results'});assert.match(host.make('app').innerHTML,/1,010/);
