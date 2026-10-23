@@ -58,7 +58,7 @@ Firebase Hosting 프로젝트는 기존 `stats-magic-show`를 사용합니다. �
 - 루트: e-Tester 앱(`index.html`, `app.js`, `math.js`, `style.css`)과 Firebase·GitHub Pages 설정, `tests/`.
 - `차시별 시뮬레이터(통계교사연구회)/`: 8차시 통계 탐구의 시뮬레이터 모음. `index.html`이 시연 목차이고 `수학카드.html`이 시뮬레이터별 A5 수학 카드(12장)입니다. 3·5차시가 쓰는 그림은 `images/`, 1·4차시의 원본 Colab 노트북과 실행 결과 페이지는 `원본노트북/`에 있습니다. GitHub Pages에서 같은 경로로 열립니다.
 - `발표자료/`: 연수 발표 덱(통합 16장, 소개 11장, e-Tester 5장)과 접속 QR. 이전 판과 구버전 앱(통계 법정) 설명서는 `이전버전/`에 둡니다. pptx·docx·pdf는 저장소에 올리지 않습니다.
-- `dist/`: `build.ps1`이 만드는 Firebase 배포용 복사본. `.verification/`: 덱 제작 중 생긴 렌더링·검증 자료로, 저장소에 올리지 않습니다.
+- `dist/`: `build.ps1`이 만드는 Firebase 배포용 복사본으로, 저장소에 올리지 않습니다.
 
 ## 참고 사이트를 반영한 관찰 기능
 
