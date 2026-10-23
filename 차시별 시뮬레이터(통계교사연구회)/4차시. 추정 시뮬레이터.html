@@ -35,7 +35,7 @@ button.run.alt{background:var(--soft);color:var(--green);border:1px solid #c1cbb
 canvas.chart{width:100%;height:360px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
 canvas.chart.tall{height:520px}
 table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
-.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right}
+.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right;white-space:nowrap}
 .t th:first-child,.t td:first-child{text-align:left}
 .t th{font-weight:600;color:var(--sub);background:var(--soft)}
 .stat{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
@@ -46,14 +46,15 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 .ask b{color:#8b532e}
 .ask ul{margin:6px 0 0;padding-left:18px}
 .note{font-size:13.5px;color:var(--sub);margin:8px 0 0}
-@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}canvas.chart.tall{height:420px}}
+details.more{margin-top:12px}details.more summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--green)}
+@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}canvas.chart.tall{height:420px}header{padding:18px 18px 14px}header h1{font-size:23px}main{padding:14px 14px 40px}.panel{padding:16px}.panel p.sub{font-size:14px}.note{display:none}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
 <p class="eyebrow">IASA 통계실험 교사연구회 · 4차시 표본평균과 중심극한정리</p>
 <h1>추정 시뮬레이터</h1>
-<p>배터리 수명 모집단(평균 500시간, 표준편차 20시간)에서 표본을 반복해 뽑으며 표본평균의 분포, 신뢰구간, 오차 한계와 조사 비용을 관찰합니다. 설치나 인터넷 연결 없이 바로 실행됩니다. · <a href="index.html">시연 목차로</a></p>
+<p>배터리 수명 모집단(평균 500시간, 표준편차 20시간)에서 표본을 뽑습니다. 실험을 고르고 실행 버튼을 누르세요. · <a href="index.html">목차로</a></p>
 <nav class="tabs" aria-label="실험 선택">
 <button class="active" data-exp="means">실험 1 · 표본평균의 분포</button>
 <button data-exp="ci">실험 2 · 95% 신뢰구간 100개</button>
@@ -75,7 +76,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <input type="range" id="mSim" min="1000" max="20000" step="1000" value="10000">
 <label class="field" style="display:flex;gap:8px;align-items:center;float:none"><input type="checkbox" id="mCurve" checked style="width:auto;accent-color:var(--green)"> 이론 정규분포 곡선 겹쳐 보기</label>
 <button class="run" id="mRun">표본평균 10,000개 만들기</button>
-<div class="ask"><b>발문</b><ul><li>두 분포의 중심은 어디인가요? 모평균과 비교해 보세요.</li><li>표본 크기를 4배로 늘리면 분포의 폭은 어떻게 되나요?</li><li>표준오차 σ/√n 공식과 실제 표준편차를 비교해 보세요.</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>두 분포의 중심은 어디인가요? 모평균과 비교해 보세요.</li><li>표본 크기를 4배로 늘리면 분포의 폭은 어떻게 되나요?</li><li>표준오차 σ/√n 공식과 실제 표준편차를 비교해 보세요.</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart" id="mChart"></canvas>
@@ -97,7 +98,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <select id="cLevel"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select>
 <button class="run" id="cRun">표본 뽑고 구간 만들기</button>
 <button class="run alt" id="cReset">누적 집계 초기화</button>
-<div class="ask"><b>발문</b><ul><li>빨간 구간(모평균을 놓친 구간)은 몇 개인가요? 항상 5개일까요?</li><li>‘95% 신뢰구간’의 95%는 무엇에 대한 비율인가요?</li><li>표본 크기를 100으로 바꾸면 구간의 길이는 어떻게 되나요?</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>빨간 구간(모평균을 놓친 구간)은 몇 개인가요? 항상 5개일까요?</li><li>‘95% 신뢰구간’의 95%는 무엇에 대한 비율인가요?</li><li>표본 크기를 100으로 바꾸면 구간의 길이는 어떻게 되나요?</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart tall" id="cChart"></canvas>
@@ -117,7 +118,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <label class="field">표본 1개당 측정 비용 (원)</label><input type="number" id="eCost" value="50000" min="1000" step="1000">
 <label class="field">표본 크기 목록 (쉼표로 구분)</label><input type="text" id="eNs" value="10, 25, 50, 100, 200, 400, 800">
 <button class="run" id="eRun">오차 한계 계산</button>
-<div class="ask"><b>발문</b><ul><li>오차 한계를 절반으로 줄이려면 표본을 몇 배 늘려야 하나요?</li><li>목표 오차 한계를 처음 만족하는 표본 크기와 비용은 얼마인가요?</li><li>표본을 400에서 800으로 늘릴 때 비용 대비 정밀도 향상은 어느 정도인가요?</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>오차 한계를 절반으로 줄이려면 표본을 몇 배 늘려야 하나요?</li><li>목표 오차 한계를 처음 만족하는 표본 크기와 비용은 얼마인가요?</li><li>표본을 400에서 800으로 늘릴 때 비용 대비 정밀도 향상은 어느 정도인가요?</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart" id="eChart"></canvas>
@@ -191,7 +192,7 @@ function histogram(values, edges) {
   return counts;
 }
 function linspace(a, b, n) { return Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)); }
-function table(id, head, rows) { $('#' + id).innerHTML = `<table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`; }
+function table(id, head, rows) { $('#' + id).innerHTML = `<div style="overflow:auto;max-width:100%"><table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
 
 /* ---------- 탭 ---------- */
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {

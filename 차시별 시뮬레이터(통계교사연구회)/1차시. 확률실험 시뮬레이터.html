@@ -34,7 +34,7 @@ button.run.alt{background:var(--soft);color:var(--green);border:1px solid #c1cbb
 canvas.chart{width:100%;height:360px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
 canvas.chart.short{height:280px}
 table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
-.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right}
+.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right;white-space:nowrap}
 .t th:first-child,.t td:first-child{text-align:left}
 .t th{font-weight:600;color:var(--sub);background:var(--soft)}
 .stat{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
@@ -45,14 +45,15 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 .ask b{color:#8b532e}
 .ask ul{margin:6px 0 0;padding-left:18px}
 .note{font-size:13.5px;color:var(--sub);margin:8px 0 0}
-@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}}
+details.more{margin-top:12px}details.more summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--green)}
+@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}header{padding:18px 18px 14px}header h1{font-size:23px}main{padding:14px 14px 40px}.panel{padding:16px}.panel p.sub{font-size:14px}.note{display:none}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
 <p class="eyebrow">IASA 통계실험 교사연구회 · 1차시 큰수의 법칙</p>
 <h1>확률실험 시뮬레이터</h1>
-<p>동전·주사위·뽑기를 직접 반복하며 상대도수의 수렴, 상대도수의 흩어짐, 오차한계와 비용을 관찰합니다. 설치나 인터넷 연결 없이 이 페이지에서 바로 실행됩니다. · <a href="index.html">시연 목차로</a></p>
+<p>실험을 고르고 실행 버튼을 누르세요. 설치 없이 바로 됩니다. · <a href="index.html">목차로</a></p>
 <nav class="tabs" aria-label="실험 선택">
 <button class="active" data-exp="coin">실험 1 · 동전 던지기 수렴</button>
 <button data-exp="dice">실험 2 · 주사위 상대도수 분포</button>
@@ -73,7 +74,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <label class="field">동시에 실행할 시뮬레이션 수 <b id="coinK-v">5개</b></label>
 <input type="range" id="coinK" min="1" max="10" step="1" value="5">
 <button class="run" id="coinRun">동전 던지기 실행</button>
-<div class="ask"><b>발문</b><ul><li>처음 10번에서 상대도수가 0.5와 많이 다른 경로가 있나요?</li><li>시행이 늘면 모든 경로의 오차가 매번 줄어드나요?</li><li>10,000회에서 0.5와의 차이는 얼마나 될까요?</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>처음 10번에서 상대도수가 0.5와 많이 다른 경로가 있나요?</li><li>시행이 늘면 모든 경로의 오차가 매번 줄어드나요?</li><li>10,000회에서 0.5와의 차이는 얼마나 될까요?</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart" id="coinChart"></canvas>
@@ -95,7 +96,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <label class="field">비교할 n (쉼표로 구분)</label>
 <input type="text" id="diceNs" value="60, 600, 6000" style="font:inherit;width:100%;padding:7px 10px;border:1px solid #c1cbb7;border-radius:7px">
 <button class="run" id="diceRun">주사위 실험 실행</button>
-<div class="ask"><b>발문</b><ul><li>세 분포의 중심은 어디에 모이나요? 1/6 ≈ 0.1667과 비교해 보세요.</li><li>n이 10배가 되면 흩어짐(표준편차)은 몇 분의 1이 되나요?</li><li>표준편차 그래프가 1/√n에 비례하는지 확인해 보세요.</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>세 분포의 중심은 어디에 모이나요? 1/6 ≈ 0.1667과 비교해 보세요.</li><li>n이 10배가 되면 흩어짐(표준편차)은 몇 분의 1이 되나요?</li><li>표준편차 그래프가 1/√n에 비례하는지 확인해 보세요.</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart" id="diceHist"></canvas>
@@ -127,7 +128,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
 <label class="field">전설이 이 횟수 이하로 나오면 ‘운이 나쁨’ <b id="gThr-v">30회</b></label>
 <input type="range" id="gThr" min="0" max="200" step="1" value="30">
 <button class="run alt" id="gSim">실험 2,000번 반복</button>
-<div class="ask"><b>발문</b><ul><li>오차한계를 절반으로 줄이려면 뽑기를 몇 배 더 해야 하나요?</li><li>오차한계 0.01과 0.005를 만족하는 최소 횟수와 비용은 얼마인가요?</li><li>1,000번 뽑아 전설이 30번 이하로 나올 확률은 얼마나 되나요? ‘확률 조작’을 의심해도 될까요?</li></ul></div>
+<details class="more"><summary>발문 보기</summary><div class="ask"><ul><li>오차한계를 절반으로 줄이려면 뽑기를 몇 배 더 해야 하나요?</li><li>오차한계 0.01과 0.005를 만족하는 최소 횟수와 비용은 얼마인가요?</li><li>1,000번 뽑아 전설이 30번 이하로 나올 확률은 얼마나 되나요? ‘확률 조작’을 의심해도 될까요?</li></ul></div></details>
 </div>
 <div class="panel">
 <canvas class="chart" id="gChart"></canvas>
@@ -211,7 +212,7 @@ function histogram(values, edges) {
   return counts;
 }
 function linspace(a, b, n) { return Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)); }
-function table(id, head, rows) { $('#' + id).innerHTML = `<table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`; }
+function table(id, head, rows) { $('#' + id).innerHTML = `<div style="overflow:auto;max-width:100%"><table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
 const PALETTE = ['#3b674d', '#d3815b', '#4b6fa8', '#8c5aa0', '#c9a227', '#2a9d8f', '#b95245', '#6d6d6d', '#e07a5f', '#1d3557'];
 
 /* ---------- 탭 ---------- */
