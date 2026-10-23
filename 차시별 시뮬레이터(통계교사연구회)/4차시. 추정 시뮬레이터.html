@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4차시 추정 시뮬레이터 · 표본평균의 분포와 신뢰구간</title>
+<style>
+:root{--bg:#f7f7f2;--paper:#fff;--ink:#253a31;--sub:#526459;--green:#3b674d;--deep:#1e3d32;--lime:#e8ef94;--line:#dfe4d9;--soft:#edf1e7;--orange:#d3815b;--red:#b95245;--blue:#4b6fa8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI','Malgun Gothic',sans-serif;font-size:16px;line-height:1.65}
+header{background:var(--deep);color:#fff;padding:26px 28px 20px}
+.wrap{max-width:1180px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:1.5px;font-weight:700;color:var(--lime);margin:0 0 6px}
+header h1{font-size:28px;margin:0 0 6px;letter-spacing:-.4px}
+header p{margin:0;color:#d7e2d5;font-size:15px}
+header a{color:var(--lime)}
+nav.tabs{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+nav.tabs button{font:inherit;font-weight:600;font-size:15px;padding:9px 16px;border-radius:100px;border:1px solid #ffffff3a;background:#ffffff1f;color:#fff;cursor:pointer}
+nav.tabs button.active{background:var(--lime);color:var(--deep);border-color:var(--lime)}
+main{padding:22px 28px 50px}
+section.exp{display:none}section.exp.active{display:block}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{font-size:21px;margin:0 0 6px;letter-spacing:-.3px}
+.panel h3{font-size:16px;margin:18px 0 8px;color:var(--green)}
+.panel p.sub{margin:0 0 12px;color:var(--sub);font-size:14.5px}
+label.field{display:block;font-size:14px;color:var(--sub);margin:12px 0 4px}
+label.field b{color:var(--ink);float:right}
+input[type=range]{width:100%;accent-color:var(--green)}
+input[type=number],select,input[type=text]{font:inherit;width:100%;padding:7px 10px;border:1px solid #c1cbb7;border-radius:7px;background:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button.run{font:inherit;font-weight:700;width:100%;margin-top:14px;padding:12px;border:0;border-radius:8px;background:var(--green);color:#fff;cursor:pointer}
+button.run:hover{filter:brightness(.95)}
+button.run.alt{background:var(--soft);color:var(--green);border:1px solid #c1cbb7}
+canvas.chart{width:100%;height:360px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+canvas.chart.tall{height:520px}
+table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
+.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right}
+.t th:first-child,.t td:first-child{text-align:left}
+.t th{font-weight:600;color:var(--sub);background:var(--soft)}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.stat div{flex:1;min-width:150px;background:var(--soft);border-radius:9px;padding:10px 12px}
+.stat small{display:block;font-size:12.5px;color:var(--sub)}
+.stat strong{font-size:21px;color:var(--green)}
+.ask{background:#fff6e8;border:1px solid #f0dcc0;border-radius:10px;padding:12px 14px;font-size:14.5px;margin-top:14px}
+.ask b{color:#8b532e}
+.ask ul{margin:6px 0 0;padding-left:18px}
+.note{font-size:13.5px;color:var(--sub);margin:8px 0 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}canvas.chart.tall{height:420px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<p class="eyebrow">IASA 통계실험 교사연구회 · 4차시 표본평균과 중심극한정리</p>
+<h1>추정 시뮬레이터</h1>
+<p>배터리 수명 모집단(평균 500시간, 표준편차 20시간)에서 표본을 반복해 뽑으며 표본평균의 분포, 신뢰구간, 오차 한계와 조사 비용을 관찰합니다. 설치나 인터넷 연결 없이 바로 실행됩니다. · <a href="index.html">시연 목차로</a></p>
+<nav class="tabs" aria-label="실험 선택">
+<button class="active" data-exp="means">실험 1 · 표본평균의 분포</button>
+<button data-exp="ci">실험 2 · 95% 신뢰구간 100개</button>
+<button data-exp="moe">실험 3 · 오차 한계와 비용</button>
+</nav>
+</div></header>
+
+<main><div class="wrap">
+
+<!-- ===== 실험 1 ===== -->
+<section class="exp active" id="exp-means">
+<div class="grid">
+<div class="panel">
+<h2>표본평균의 분포</h2>
+<p class="sub">같은 모집단에서 표본 크기를 달리해 표본평균을 10,000번 구하고, 두 분포의 폭을 비교합니다.</p>
+<div class="row2"><div><label class="field">모평균 μ</label><input type="number" id="mMu" value="500"></div><div><label class="field">모표준편차 σ</label><input type="number" id="mSigma" value="20" min="1"></div></div>
+<div class="row2"><div><label class="field">표본 크기 n₁</label><input type="number" id="mN1" value="25" min="2"></div><div><label class="field">표본 크기 n₂</label><input type="number" id="mN2" value="100" min="2"></div></div>
+<label class="field">반복 횟수 <b id="mSim-v">10,000회</b></label>
+<input type="range" id="mSim" min="1000" max="20000" step="1000" value="10000">
+<label class="field" style="display:flex;gap:8px;align-items:center;float:none"><input type="checkbox" id="mCurve" checked style="width:auto;accent-color:var(--green)"> 이론 정규분포 곡선 겹쳐 보기</label>
+<button class="run" id="mRun">표본평균 10,000개 만들기</button>
+<div class="ask"><b>발문</b><ul><li>두 분포의 중심은 어디인가요? 모평균과 비교해 보세요.</li><li>표본 크기를 4배로 늘리면 분포의 폭은 어떻게 되나요?</li><li>표준오차 σ/√n 공식과 실제 표준편차를 비교해 보세요.</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart" id="mChart"></canvas>
+<h3>표본평균 통계량 비교</h3>
+<div id="mTable"></div>
+<p class="note">모집단이 정규분포이면 표본평균도 정규분포를 따르고, 표준오차는 σ/√n입니다. 일반 모집단에서는 표본이 충분히 클 때 중심극한정리로 근사합니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 실험 2 ===== -->
+<section class="exp" id="exp-ci">
+<div class="grid">
+<div class="panel">
+<h2>95% 신뢰구간 100개</h2>
+<p class="sub">표본을 뽑을 때마다 모평균의 신뢰구간을 만들고, 그중 몇 개가 실제 모평균 500을 포함하는지 셉니다.</p>
+<div class="row2"><div><label class="field">표본 크기 n</label><input type="number" id="cN" value="25" min="2"></div><div><label class="field">구간 개수</label><input type="number" id="cK" value="100" min="10" max="300"></div></div>
+<label class="field">신뢰수준</label>
+<select id="cLevel"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select>
+<button class="run" id="cRun">표본 뽑고 구간 만들기</button>
+<button class="run alt" id="cReset">누적 집계 초기화</button>
+<div class="ask"><b>발문</b><ul><li>빨간 구간(모평균을 놓친 구간)은 몇 개인가요? 항상 5개일까요?</li><li>‘95% 신뢰구간’의 95%는 무엇에 대한 비율인가요?</li><li>표본 크기를 100으로 바꾸면 구간의 길이는 어떻게 되나요?</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart tall" id="cChart"></canvas>
+<div class="stat" id="cStat"></div>
+<p class="note">같은 절차로 표본추출과 구간 계산을 반복할 때 약 95%의 구간이 모평균을 포함한다는 뜻이지, 한 구간이 모평균을 포함할 확률이 95%라는 뜻이 아닙니다. 이 실험은 모표준편차 σ를 안다고 가정한 z-구간입니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 실험 3 ===== -->
+<section class="exp" id="exp-moe">
+<div class="grid">
+<div class="panel">
+<h2>오차 한계와 조사 비용</h2>
+<p class="sub">표본 크기에 따라 95% 신뢰구간의 오차 한계 z·σ/√n이 얼마나 줄어들고, 표본 1개당 측정 비용을 곱한 총비용은 얼마나 늘어나는지 봅니다.</p>
+<div class="row2"><div><label class="field">모표준편차 σ</label><input type="number" id="eSigma" value="20" min="1"></div><div><label class="field">목표 오차 한계</label><input type="number" id="eTarget" value="2" min="0.1" step="0.1"></div></div>
+<label class="field">표본 1개당 측정 비용 (원)</label><input type="number" id="eCost" value="50000" min="1000" step="1000">
+<label class="field">표본 크기 목록 (쉼표로 구분)</label><input type="text" id="eNs" value="10, 25, 50, 100, 200, 400, 800">
+<button class="run" id="eRun">오차 한계 계산</button>
+<div class="ask"><b>발문</b><ul><li>오차 한계를 절반으로 줄이려면 표본을 몇 배 늘려야 하나요?</li><li>목표 오차 한계를 처음 만족하는 표본 크기와 비용은 얼마인가요?</li><li>표본을 400에서 800으로 늘릴 때 비용 대비 정밀도 향상은 어느 정도인가요?</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart" id="eChart"></canvas>
+<div class="stat" id="eStat"></div>
+<div id="eTable"></div>
+<p class="note">총비용은 표본 크기에 비례해 늘지만 오차 한계는 1/√n으로 줄어들어, 정밀도를 높일수록 비용 대비 효과는 둔해집니다.</p>
+</div>
+</div>
+</section>
+
+</div></main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const fmt = (x, d = 0) => x.toLocaleString('ko-KR', { maximumFractionDigits: d, minimumFractionDigits: d });
+const Z = { '0.90': 1.6449, '0.95': 1.9600, '0.99': 2.5758 };
+function randn() { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+/* ---------- 작은 차트 엔진 (외부 라이브러리 없음) ---------- */
+function niceTicks(min, max, count = 5) {
+  const span = max - min || 1, raw = span / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag, step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag;
+  const ticks = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) ticks.push(+v.toFixed(10));
+  return ticks;
+}
+function drawChart(id, o) {
+  const c = document.getElementById(id), dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth, H = c.clientHeight;
+  c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+  const ml = o.noY ? 20 : 62, mr = o.right ? 70 : 18, mt = 16, mb = 46, pw = W - ml - mr, ph = H - mt - mb;
+  const lx = o.xLog ? Math.log10 : (v => v);
+  const x0 = lx(o.xMin), x1 = lx(o.xMax);
+  const sx = x => ml + (lx(x) - x0) / (x1 - x0) * pw;
+  const sy = y => mt + ph - (y - o.yMin) / (o.yMax - o.yMin) * ph;
+  const sy2 = o.right ? (y => mt + ph - (y - o.right.min) / (o.right.max - o.right.min) * ph) : null;
+  g.font = '12px "Segoe UI","Malgun Gothic",sans-serif'; g.fillStyle = '#526459'; g.strokeStyle = '#e4e8de'; g.lineWidth = 1;
+  if (!o.noY) { const yt = o.yTicks || niceTicks(o.yMin, o.yMax, 5); g.textAlign = 'right'; g.textBaseline = 'middle';
+    yt.forEach(v => { const y = sy(v); g.beginPath(); g.moveTo(ml, y); g.lineTo(ml + pw, y); g.stroke(); g.fillText(o.yFmt ? o.yFmt(v) : fmt(v, o.yDec ?? 2), ml - 8, y); }); }
+  let xt = o.xTicks;
+  if (!xt) { if (o.xLog) { xt = []; for (let e = Math.ceil(x0); e <= x1; e++) xt.push(Math.pow(10, e)); } else xt = niceTicks(o.xMin, o.xMax, 6); }
+  g.textAlign = 'center'; g.textBaseline = 'top';
+  xt.forEach(v => { const x = sx(v); g.beginPath(); g.moveTo(x, mt); g.lineTo(x, mt + ph); g.stroke(); g.fillText(o.xFmt ? o.xFmt(v) : fmt(v, o.xDec ?? 0), x, mt + ph + 6); });
+  if (o.right) { g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillStyle = o.right.color || '#526459'; niceTicks(o.right.min, o.right.max, 5).forEach(v => g.fillText(o.right.fmt ? o.right.fmt(v) : fmt(v), ml + pw + 8, sy2(v))); g.fillStyle = '#526459'; }
+  g.textAlign = 'center'; g.textBaseline = 'bottom'; g.fillText(o.xLabel || '', ml + pw / 2, H - 4);
+  if (o.yLabel) { g.save(); g.translate(14, mt + ph / 2); g.rotate(-Math.PI / 2); g.textBaseline = 'top'; g.fillText(o.yLabel, 0, 0); g.restore(); }
+  if (o.right && o.right.label) { g.save(); g.translate(W - 6, mt + ph / 2); g.rotate(Math.PI / 2); g.textBaseline = 'top'; g.fillStyle = o.right.color || '#526459'; g.fillText(o.right.label, 0, 0); g.restore(); }
+  g.save(); g.beginPath(); g.rect(ml, mt, pw, ph); g.clip();
+  (o.bars || []).forEach(b => { g.fillStyle = b.color; g.globalAlpha = b.alpha ?? .55; for (let i = 0; i < b.counts.length; i++) { const xa = sx(b.edges[i]), xb = sx(b.edges[i + 1]), y = sy(b.counts[i]); g.fillRect(xa, y, Math.max(1, xb - xa - .5), mt + ph - y); } g.globalAlpha = 1; });
+  (o.segments || []).forEach(s => { g.strokeStyle = s.color; g.lineWidth = s.width || 2; g.beginPath(); g.moveTo(sx(s.x0), sy(s.y)); g.lineTo(sx(s.x1), sy(s.y)); g.stroke(); });
+  (o.lines || []).forEach(l => {
+    const Y = l.axis === 'right' ? sy2 : sy;
+    g.strokeStyle = l.color; g.lineWidth = l.width || 2; g.setLineDash(l.dash || []);
+    g.beginPath(); l.x.forEach((xv, i) => { const X = sx(xv), Yv = Y(l.y[i]); i ? g.lineTo(X, Yv) : g.moveTo(X, Yv); }); g.stroke(); g.setLineDash([]);
+    if (l.marker) { g.fillStyle = l.color; l.x.forEach((xv, i) => { g.beginPath(); g.arc(sx(xv), Y(l.y[i]), 4, 0, Math.PI * 2); g.fill(); }); }
+  });
+  (o.hlines || []).forEach(h => { const Y = h.axis === 'right' ? sy2 : sy; g.strokeStyle = h.color; g.lineWidth = 1.5; g.setLineDash(h.dash || [6, 4]); g.beginPath(); g.moveTo(ml, Y(h.y)); g.lineTo(ml + pw, Y(h.y)); g.stroke(); g.setLineDash([]); });
+  (o.vlines || []).forEach(v => { g.strokeStyle = v.color; g.lineWidth = 1.5; g.setLineDash(v.dash || [6, 4]); g.beginPath(); g.moveTo(sx(v.x), mt); g.lineTo(sx(v.x), mt + ph); g.stroke(); g.setLineDash([]); });
+  g.restore();
+  const items = [...(o.bars || []), ...(o.lines || []), ...(o.hlines || []), ...(o.vlines || []), ...(o.legendExtra || [])].filter(i => i.label);
+  let ly = mt + 8; g.font = '12.5px "Segoe UI","Malgun Gothic",sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+  items.forEach(i => { const w = g.measureText(i.label).width + 30; const lxp = ml + pw - w - 6; g.fillStyle = '#ffffffd9'; g.fillRect(lxp - 4, ly - 9, w + 8, 18); g.strokeStyle = i.color; g.fillStyle = i.color; g.lineWidth = 3; g.setLineDash(i.dash || []); if (i.counts) g.fillRect(lxp, ly - 5, 16, 10); else { g.beginPath(); g.moveTo(lxp, ly); g.lineTo(lxp + 16, ly); g.stroke(); } g.setLineDash([]); g.fillStyle = '#253a31'; g.fillText(i.label, lxp + 22, ly); ly += 18; });
+}
+function histogram(values, edges) {
+  const counts = new Array(edges.length - 1).fill(0), w = edges[1] - edges[0];
+  values.forEach(v => { const i = Math.floor((v - edges[0]) / w); if (i >= 0 && i < counts.length) counts[i]++; });
+  return counts;
+}
+function linspace(a, b, n) { return Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)); }
+function table(id, head, rows) { $('#' + id).innerHTML = `<table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`; }
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav.tabs button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('section.exp').forEach(s => s.classList.toggle('active', s.id === 'exp-' + b.dataset.exp));
+  redrawActive();
+}));
+const redraw = {};
+function redrawActive() { const a = document.querySelector('section.exp.active'); if (a && redraw[a.id]) redraw[a.id](); }
+window.addEventListener('resize', redrawActive);
+
+/* ---------- 실험 1: 표본평균의 분포 ---------- */
+$('#mSim').addEventListener('input', () => $('#mSim-v').textContent = fmt(+$('#mSim').value) + '회');
+$('#mCurve').addEventListener('change', () => drawMeans());
+let mData = null;
+function runMeans() {
+  const mu = +$('#mMu').value, sigma = +$('#mSigma').value, M = +$('#mSim').value;
+  const ns = [+$('#mN1').value, +$('#mN2').value].filter(n => n >= 2);
+  const res = ns.map(n => {
+    const means = new Array(M);
+    for (let m = 0; m < M; m++) { let s = 0; for (let i = 0; i < n; i++) s += mu + sigma * randn(); means[m] = s / n; }
+    const mean = means.reduce((a, b) => a + b, 0) / M, sd = Math.sqrt(means.reduce((a, b) => a + (b - mean) ** 2, 0) / M);
+    return { n, means, mean, sd, se: sigma / Math.sqrt(n) };
+  });
+  mData = { mu, sigma, M, res };
+  drawMeans();
+}
+function drawMeans() {
+  if (!mData) return;
+  const { mu, sigma, M, res } = mData, colors = ['#4b6fa8', '#d3815b'];
+  const spread = 4.2 * sigma / Math.sqrt(Math.min(...res.map(r => r.n)));
+  const edges = linspace(mu - spread, mu + spread, 61), w = edges[1] - edges[0];
+  const bars = res.map((r, i) => ({ edges, counts: histogram(r.means, edges).map(c => c / (M * w)), color: colors[i], alpha: .5, label: `표본 크기 n = ${r.n}` }));
+  const lines = [];
+  if ($('#mCurve').checked) res.forEach((r, i) => { const xs = linspace(mu - spread, mu + spread, 160); lines.push({ x: xs, y: xs.map(x => Math.exp(-((x - mu) ** 2) / (2 * r.se ** 2)) / (r.se * Math.sqrt(2 * Math.PI))), color: colors[i], width: 1.5, dash: [5, 4] }); });
+  const yMax = Math.max(...bars.flatMap(b => b.counts), ...lines.flatMap(l => l.y)) * 1.1;
+  drawChart('mChart', { xMin: mu - spread, xMax: mu + spread, yMin: 0, yMax, xLabel: '표본평균 (시간)', yLabel: '밀도', xDec: 0, yDec: 3, bars, lines, vlines: [{ x: mu, color: '#253a31', dash: [2, 4], label: `모평균 ${mu}` }] });
+  table('mTable', ['표본 크기', '표본평균들의 평균', '모평균', '실제 표준오차', '이론 표준오차 σ/√n', '비율 (실제/이론)'],
+    res.map(r => [r.n, r.mean.toFixed(3), mu, r.sd.toFixed(3), r.se.toFixed(3), (r.sd / r.se).toFixed(3)]));
+}
+$('#mRun').addEventListener('click', runMeans);
+redraw['exp-means'] = drawMeans;
+
+/* ---------- 실험 2: 신뢰구간 ---------- */
+let cData = null, cTotal = 0, cCovered = 0;
+function runCI() {
+  const mu = +$('#mMu').value, sigma = +$('#mSigma').value, n = +$('#cN').value, K = Math.min(300, Math.max(10, +$('#cK').value)), lvl = $('#cLevel').value, z = Z[lvl];
+  const se = sigma / Math.sqrt(n), moe = z * se, ivs = [];
+  let covered = 0;
+  for (let k = 0; k < K; k++) { let s = 0; for (let i = 0; i < n; i++) s += mu + sigma * randn(); const m = s / n; const ok = m - moe <= mu && mu <= m + moe; if (ok) covered++; ivs.push({ lo: m - moe, hi: m + moe, ok }); }
+  cTotal += K; cCovered += covered;
+  cData = { mu, n, K, lvl, z, moe, ivs, covered };
+  drawCI();
+}
+function drawCI() {
+  if (!cData) return;
+  const { mu, n, K, lvl, moe, ivs, covered } = cData;
+  const lo = Math.min(...ivs.map(i => i.lo)), hi = Math.max(...ivs.map(i => i.hi)), pad = (hi - lo) * .05;
+  drawChart('cChart', { xMin: lo - pad, xMax: hi + pad, yMin: -1, yMax: K, noY: true, xLabel: '신뢰구간 (시간)', xDec: 0,
+    segments: ivs.map((iv, k) => ({ x0: iv.lo, x1: iv.hi, y: k, color: iv.ok ? '#4b6fa8' : '#b95245', width: K > 150 ? 1.2 : 2 })),
+    vlines: [{ x: mu, color: '#253a31', label: `모평균 참값 ${mu}시간` }],
+    legendExtra: [{ color: '#4b6fa8', label: '모평균을 포함한 구간' }, { color: '#b95245', label: '모평균을 놓친 구간' }] });
+  $('#cStat').innerHTML = `<div><small>이번 ${K}개 구간 중 모평균을 포함</small><strong>${covered}개 (${(covered / K * 100).toFixed(1)}%)</strong><small>놓친 구간 ${K - covered}개 · 기대치 ${(+lvl * 100).toFixed(0)}%</small></div>
+<div><small>누적 (초기화 전까지)</small><strong>${cCovered} / ${cTotal} = ${(cCovered / cTotal * 100).toFixed(2)}%</strong><small>반복할수록 ${(+lvl * 100).toFixed(0)}%에 가까워집니다</small></div>
+<div><small>구간의 반폭 (오차 한계)</small><strong>±${moe.toFixed(2)}시간</strong><small>n = ${n}, z = ${cData.z}</small></div>`;
+}
+$('#cRun').addEventListener('click', runCI);
+$('#cReset').addEventListener('click', () => { cTotal = 0; cCovered = 0; runCI(); });
+redraw['exp-ci'] = drawCI;
+
+/* ---------- 실험 3: 오차 한계와 비용 ---------- */
+let eData = null;
+function runMoe() {
+  const sigma = +$('#eSigma').value, target = +$('#eTarget').value, cost = +$('#eCost').value, z = 1.96;
+  const ns = $('#eNs').value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => n > 0).sort((a, b) => a - b).slice(0, 12);
+  if (!ns.length) return;
+  const rows = ns.map(n => ({ n, moe: z * sigma / Math.sqrt(n), cost: n * cost }));
+  const need = Math.ceil((z * sigma / target) ** 2);
+  eData = { sigma, target, cost, rows, first: rows.find(r => r.moe <= target), need };
+  drawMoe();
+}
+function drawMoe() {
+  if (!eData) return;
+  const { target, cost, rows, first, need } = eData, ns = rows.map(r => r.n);
+  drawChart('eChart', { xMin: 0, xMax: ns[ns.length - 1] * 1.05, yMin: 0, yMax: Math.max(target, rows[0].moe) * 1.15, xLabel: '표본 크기 n', yLabel: '오차 한계 (시간, 95%)', yDec: 1, xTicks: ns,
+    right: { min: 0, max: rows[rows.length - 1].cost / 10000 * 1.1, label: '총 비용 (만원)', color: '#d3815b', fmt: v => fmt(v) },
+    lines: [{ x: ns, y: rows.map(r => r.moe), color: '#3b674d', marker: true, label: '오차 한계' }, { x: ns, y: rows.map(r => r.cost / 10000), axis: 'right', color: '#d3815b', dash: [6, 4], marker: true, label: '총 비용 (오른쪽 축, 만원)' }],
+    hlines: [{ y: target, color: '#b95245', label: `목표 오차 한계 ${target}` }] });
+  $('#eStat').innerHTML = `<div><small>목록에서 오차 한계 ≤ ${target}이 되는 첫 n</small><strong>${first ? first.n + '개' : '없음'}</strong><small>${first ? '총 비용 ' + fmt(first.cost) + '원' : '목록을 더 키워 보세요'}</small></div>
+<div><small>정확한 최소 표본 크기 (1.96σ/E)²</small><strong>${fmt(need)}개</strong><small>총 비용 ${fmt(need * cost)}원</small></div>`;
+  table('eTable', ['표본 크기 n', '오차 한계 (시간)', '총 비용 (원)', '표본 1개 추가당 오차 감소'], rows.map((r, i) => [r.n, r.moe.toFixed(3), fmt(r.cost), i ? ((rows[i - 1].moe - r.moe) / (r.n - rows[i - 1].n)).toFixed(4) : '—']));
+}
+$('#eRun').addEventListener('click', runMoe);
+redraw['exp-moe'] = drawMoe;
+
+/* 첫 화면 */
+runMeans(); runCI(); runMoe();
+})();
+</script>
+</body>
+</html>

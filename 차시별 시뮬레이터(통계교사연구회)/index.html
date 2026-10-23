@@ -60,7 +60,8 @@ footer{max-width:1120px;margin:0 auto;padding:20px 28px 40px;color:var(--sub);fo
 <h2>시연 전 확인</h2>
 <ul>
 <li><b>인터넷 연결</b>: 6차시 로봇 탐사 4종은 차트·수식 라이브러리를 인터넷에서 불러오므로 연결이 없으면 화면이 비어 보입니다. 3·5차시의 ‘결과 저장하기’ 버튼도 인터넷이 필요하며, 그 외 기능은 오프라인에서도 됩니다.</li>
-<li><b>1·4차시 노트북</b>: Colab 노트북이라 브라우저에서 실행되지 않습니다. 실행 결과(그래프·표)를 담은 페이지를 열어 시연하고, 조건을 바꿔 보이려면 원본 .ipynb를 Colab에 업로드하세요.</li>
+<li><b>1·4차시</b>: 원래 Colab 노트북이던 실험을 HTML 시뮬레이터로 옮겨 슬라이더로 조건을 바꾸며 바로 실행됩니다. 원본 노트북의 실행 결과 페이지도 카드의 보조 버튼으로 열 수 있습니다.</li>
+<li><b>수학 카드</b>: 각 시뮬레이터의 수학적 원리를 A5 한 장씩 정리한 <a href="수학카드.html" target="_blank" rel="noopener">수학 카드 묶음</a>을 인쇄해 배부할 수 있습니다(A4 한 장에 2장).</li>
 <li><b>화면 배율</b>: 프로젝터에서는 브라우저 확대(Ctrl +)를 110~125%로 두면 슬라이더 값이 잘 보입니다.</li>
 <li><b>탭 정리</b>: 시연 순서대로 미리 탭을 열어 두면 로딩 없이 넘어갈 수 있습니다.</li>
 </ul>
@@ -70,15 +71,15 @@ footer{max-width:1120px;margin:0 auto;padding:20px 28px 40px;color:var(--sub);fo
 <div class="sec-head"><span class="num">1차시</span><h2>큰수의 법칙</h2><span class="concept">동전과 주사위의 상대도수 수렴 · 오차한계와 비용</span></div>
 <div class="cards">
 <article class="card">
-<span class="kind static">실행 결과 페이지 · Colab 노트북</span>
-<h3>확률실험 노트북</h3>
-<p>동전 10,000회 던지기를 5번 반복한 누적 상대도수, 시행 수에 따른 상대도수 분포, 참확률 5% 뽑기의 오차한계와 비용 계산입니다.</p>
+<span class="kind">HTML 시뮬레이터</span>
+<h3>확률실험 시뮬레이터</h3>
+<p>동전 10,000회 던지기를 5번 반복한 누적 상대도수, 주사위 n번 던지기의 상대도수 분포, 참확률 5% 뽑기의 오차한계와 비용을 슬라이더로 바꿔 가며 실행합니다.</p>
 <ul>
 <li>로그 스케일 그래프에서 다섯 경로가 0.5로 모이지만 매번 오차가 줄지는 않는다는 점</li>
 <li>n = 60, 600, 6000의 히스토그램 폭 비교, 표준편차가 1/√n에 비례</li>
-<li>오차한계 0.01, 0.005를 처음 만족하는 시행 수와 총비용 그래프</li>
+<li>오차한계 0.01, 0.005를 처음 만족하는 시행 수와 총비용, 1,000번 뽑기를 2,000번 반복해 전설 30회 이하가 나올 비율</li>
 </ul>
-<div class="btns"><a class="open" href="1차시. 확률실험(실행결과).html" target="_blank" rel="noopener">실행 결과 열기 ↗</a><a class="open alt" href="1차시. 확률실험.ipynb" download>원본 .ipynb 받기</a></div>
+<div class="btns"><a class="open" href="1차시. 확률실험 시뮬레이터.html" target="_blank" rel="noopener">시뮬레이터 열기 ↗</a><a class="open alt" href="1차시. 확률실험(실행결과).html" target="_blank" rel="noopener">원본 노트북 결과</a></div>
 </article>
 </div>
 </section>
@@ -140,15 +141,15 @@ footer{max-width:1120px;margin:0 auto;padding:20px 28px 40px;color:var(--sub);fo
 <div class="sec-head"><span class="num">4차시</span><h2>표본평균과 중심극한정리</h2><span class="concept">표본 크기에 따른 평균 분포 비교 · 신뢰구간</span></div>
 <div class="cards">
 <article class="card">
-<span class="kind static">실행 결과 페이지 · Colab 노트북</span>
-<h3>추정 노트북</h3>
-<p>배터리 수명 모집단에서 표본 크기 25와 100으로 표본평균을 반복 추출해 분포를 비교하고, 신뢰구간과 오차한계, 조사 비용을 함께 봅니다.</p>
+<span class="kind">HTML 시뮬레이터</span>
+<h3>추정 시뮬레이터</h3>
+<p>배터리 수명 모집단(μ = 500, σ = 20)에서 표본 크기 25와 100으로 표본평균을 10,000번 뽑아 분포를 비교하고, 신뢰구간 100개와 오차 한계·조사 비용을 바로 실행합니다.</p>
 <ul>
 <li>표본 크기가 4배가 되면 표본평균 분포의 폭이 절반으로 (SE = σ/√n)</li>
-<li>여러 번 만든 95% 신뢰구간 중 모평균을 놓치는 구간 세어 보기</li>
-<li>원하는 오차한계를 만족하는 표본 크기와 비용 대비 정밀도</li>
+<li>95% 신뢰구간 100개 중 모평균을 놓치는 빨간 구간 세기, 누적 포함 비율이 95%로 가는 모습</li>
+<li>목표 오차 한계 2를 만족하는 표본 크기 (1.96σ/E)² = 385와 비용 대비 정밀도</li>
 </ul>
-<div class="btns"><a class="open" href="4차시. 추정(실행결과).html" target="_blank" rel="noopener">실행 결과 열기 ↗</a><a class="open alt" href="4차시. 추정.ipynb" download>원본 .ipynb 받기</a></div>
+<div class="btns"><a class="open" href="4차시. 추정 시뮬레이터.html" target="_blank" rel="noopener">시뮬레이터 열기 ↗</a><a class="open alt" href="4차시. 추정(실행결과).html" target="_blank" rel="noopener">원본 노트북 결과</a></div>
 </article>
 </div>
 </section>

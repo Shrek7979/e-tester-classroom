@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1차시 확률실험 시뮬레이터 · 큰수의 법칙과 오차한계</title>
+<style>
+:root{--bg:#f7f7f2;--paper:#fff;--ink:#253a31;--sub:#526459;--green:#3b674d;--deep:#1e3d32;--lime:#e8ef94;--line:#dfe4d9;--soft:#edf1e7;--orange:#d3815b;--red:#b95245;--blue:#4b6fa8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI','Malgun Gothic',sans-serif;font-size:16px;line-height:1.65}
+header{background:var(--deep);color:#fff;padding:26px 28px 20px}
+.wrap{max-width:1180px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:1.5px;font-weight:700;color:var(--lime);margin:0 0 6px}
+header h1{font-size:28px;margin:0 0 6px;letter-spacing:-.4px}
+header p{margin:0;color:#d7e2d5;font-size:15px}
+header a{color:var(--lime)}
+nav.tabs{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+nav.tabs button{font:inherit;font-weight:600;font-size:15px;padding:9px 16px;border-radius:100px;border:1px solid #ffffff3a;background:#ffffff1f;color:#fff;cursor:pointer}
+nav.tabs button.active{background:var(--lime);color:var(--deep);border-color:var(--lime)}
+main{padding:22px 28px 50px}
+section.exp{display:none}section.exp.active{display:block}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{font-size:21px;margin:0 0 6px;letter-spacing:-.3px}
+.panel h3{font-size:16px;margin:18px 0 8px;color:var(--green)}
+.panel p.sub{margin:0 0 12px;color:var(--sub);font-size:14.5px}
+label.field{display:block;font-size:14px;color:var(--sub);margin:12px 0 4px}
+label.field b{color:var(--ink);float:right}
+input[type=range]{width:100%;accent-color:var(--green)}
+input[type=number],select{font:inherit;width:100%;padding:7px 10px;border:1px solid #c1cbb7;border-radius:7px;background:#fff}
+button.run{font:inherit;font-weight:700;width:100%;margin-top:14px;padding:12px;border:0;border-radius:8px;background:var(--green);color:#fff;cursor:pointer}
+button.run:hover{filter:brightness(.95)}
+button.run.alt{background:var(--soft);color:var(--green);border:1px solid #c1cbb7}
+canvas.chart{width:100%;height:360px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+canvas.chart.short{height:280px}
+table.t{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
+.t th,.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right}
+.t th:first-child,.t td:first-child{text-align:left}
+.t th{font-weight:600;color:var(--sub);background:var(--soft)}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.stat div{flex:1;min-width:150px;background:var(--soft);border-radius:9px;padding:10px 12px}
+.stat small{display:block;font-size:12.5px;color:var(--sub)}
+.stat strong{font-size:21px;color:var(--green)}
+.ask{background:#fff6e8;border:1px solid #f0dcc0;border-radius:10px;padding:12px 14px;font-size:14.5px;margin-top:14px}
+.ask b{color:#8b532e}
+.ask ul{margin:6px 0 0;padding-left:18px}
+.note{font-size:13.5px;color:var(--sub);margin:8px 0 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}canvas.chart{height:300px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<p class="eyebrow">IASA 통계실험 교사연구회 · 1차시 큰수의 법칙</p>
+<h1>확률실험 시뮬레이터</h1>
+<p>동전·주사위·뽑기를 직접 반복하며 상대도수의 수렴, 상대도수의 흩어짐, 오차한계와 비용을 관찰합니다. 설치나 인터넷 연결 없이 이 페이지에서 바로 실행됩니다. · <a href="index.html">시연 목차로</a></p>
+<nav class="tabs" aria-label="실험 선택">
+<button class="active" data-exp="coin">실험 1 · 동전 던지기 수렴</button>
+<button data-exp="dice">실험 2 · 주사위 상대도수 분포</button>
+<button data-exp="gacha">실험 3 · 뽑기 오차한계와 비용</button>
+</nav>
+</div></header>
+
+<main><div class="wrap">
+
+<!-- ===== 실험 1 ===== -->
+<section class="exp active" id="exp-coin">
+<div class="grid">
+<div class="panel">
+<h2>동전 던지기 수렴</h2>
+<p class="sub">동전을 여러 번 던지며 앞면의 누적 상대도수가 0.5에 가까워지는 과정을 봅니다. 가로축은 로그 스케일입니다.</p>
+<label class="field">던지는 횟수 <b id="coinN-v">10,000회</b></label>
+<input type="range" id="coinN" min="3" max="5" step="1" value="4">
+<label class="field">동시에 실행할 시뮬레이션 수 <b id="coinK-v">5개</b></label>
+<input type="range" id="coinK" min="1" max="10" step="1" value="5">
+<button class="run" id="coinRun">동전 던지기 실행</button>
+<div class="ask"><b>발문</b><ul><li>처음 10번에서 상대도수가 0.5와 많이 다른 경로가 있나요?</li><li>시행이 늘면 모든 경로의 오차가 매번 줄어드나요?</li><li>10,000회에서 0.5와의 차이는 얼마나 될까요?</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart" id="coinChart"></canvas>
+<h3>특정 시행 횟수에서의 누적 상대도수</h3>
+<div id="coinTable"></div>
+<p class="note">한 경로의 오차가 단조롭게 줄어드는 것이 아니라, 반복 시행에서 상대도수의 변동 폭이 줄어든다는 점에 주목하세요.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 실험 2 ===== -->
+<section class="exp" id="exp-dice">
+<div class="grid">
+<div class="panel">
+<h2>주사위 6의 눈 상대도수 분포</h2>
+<p class="sub">주사위를 n번 던져 6의 눈이 나온 상대도수를 구하는 실험을 2,000번 반복합니다. n이 커질수록 분포가 어떻게 달라질까요?</p>
+<label class="field">반복 실험 횟수 <b id="diceM-v">2,000회</b></label>
+<input type="range" id="diceM" min="200" max="5000" step="200" value="2000">
+<label class="field">비교할 n (쉼표로 구분)</label>
+<input type="text" id="diceNs" value="60, 600, 6000" style="font:inherit;width:100%;padding:7px 10px;border:1px solid #c1cbb7;border-radius:7px">
+<button class="run" id="diceRun">주사위 실험 실행</button>
+<div class="ask"><b>발문</b><ul><li>세 분포의 중심은 어디에 모이나요? 1/6 ≈ 0.1667과 비교해 보세요.</li><li>n이 10배가 되면 흩어짐(표준편차)은 몇 분의 1이 되나요?</li><li>표준편차 그래프가 1/√n에 비례하는지 확인해 보세요.</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart" id="diceHist"></canvas>
+<h3>상대도수의 평균과 표준편차 비교</h3>
+<div id="diceTable"></div>
+<h3>n에 따른 표준편차 변화 (로그 스케일)</h3>
+<canvas class="chart short" id="diceStd"></canvas>
+<p class="note">이론 표준편차는 √(p(1−p)/n)입니다. 상대도수의 평균은 p에 머물고 표준편차만 1/√n으로 줄어듭니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 실험 3 ===== -->
+<section class="exp" id="exp-gacha">
+<div class="grid">
+<div class="panel">
+<h2>뽑기 오차한계와 비용</h2>
+<p class="sub">참확률 p인 ‘전설 등급’ 뽑기를 n번 할 때, 상대도수의 오차한계(표준편차의 2배)가 어떻게 줄어들고 비용은 얼마나 드는지 봅니다.</p>
+<label class="field">전설 등급 참확률 p <b id="gP-v">0.05</b></label>
+<input type="range" id="gP" min="0.01" max="0.5" step="0.01" value="0.05">
+<label class="field">뽑기 1회 비용 (원)</label>
+<input type="number" id="gCost" value="1000" min="100" step="100">
+<label class="field">시행 횟수 n 목록 (쉼표로 구분)</label>
+<input type="text" id="gNs" value="100, 500, 1000, 1900, 5000, 7600, 20000" style="font:inherit;width:100%;padding:7px 10px;border:1px solid #c1cbb7;border-radius:7px">
+<button class="run" id="gRun">오차한계 계산</button>
+<h3>반복 실험으로 확인하기</h3>
+<label class="field">한 실험당 뽑기 횟수 <b id="gDraws-v">1,000회</b></label>
+<input type="range" id="gDraws" min="100" max="5000" step="100" value="1000">
+<label class="field">전설이 이 횟수 이하로 나오면 ‘운이 나쁨’ <b id="gThr-v">30회</b></label>
+<input type="range" id="gThr" min="0" max="200" step="1" value="30">
+<button class="run alt" id="gSim">실험 2,000번 반복</button>
+<div class="ask"><b>발문</b><ul><li>오차한계를 절반으로 줄이려면 뽑기를 몇 배 더 해야 하나요?</li><li>오차한계 0.01과 0.005를 만족하는 최소 횟수와 비용은 얼마인가요?</li><li>1,000번 뽑아 전설이 30번 이하로 나올 확률은 얼마나 되나요? ‘확률 조작’을 의심해도 될까요?</li></ul></div>
+</div>
+<div class="panel">
+<canvas class="chart" id="gChart"></canvas>
+<div class="stat" id="gStat"></div>
+<div id="gTable"></div>
+<h3>반복 실험 결과</h3>
+<canvas class="chart short" id="gHist"></canvas>
+<div class="stat" id="gSimStat"></div>
+<p class="note">오차한계는 상대도수가 반복 추출에서 얼마나 흩어지는지를 나타내는 2σ 기준이며, 한 번의 실험에서 생길 수 있는 최대 오차가 아닙니다.</p>
+</div>
+</div>
+</section>
+
+</div></main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const fmt = (x, d = 0) => x.toLocaleString('ko-KR', { maximumFractionDigits: d, minimumFractionDigits: d });
+
+/* ---------- 작은 차트 엔진 (외부 라이브러리 없음) ---------- */
+function niceTicks(min, max, count = 5) {
+  const span = max - min || 1, raw = span / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag, step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag;
+  const ticks = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) ticks.push(+v.toFixed(10));
+  return ticks;
+}
+function drawChart(id, o) {
+  const c = document.getElementById(id), dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth, H = c.clientHeight;
+  c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+  const ml = 62, mr = o.right ? 70 : 18, mt = 16, mb = 46, pw = W - ml - mr, ph = H - mt - mb;
+  const lx = o.xLog ? Math.log10 : (v => v);
+  const x0 = lx(o.xMin), x1 = lx(o.xMax);
+  const sx = x => ml + (lx(x) - x0) / (x1 - x0) * pw;
+  const sy = y => mt + ph - (y - o.yMin) / (o.yMax - o.yMin) * ph;
+  const sy2 = o.right ? (y => mt + ph - (y - o.right.min) / (o.right.max - o.right.min) * ph) : null;
+  g.font = '12px "Segoe UI","Malgun Gothic",sans-serif'; g.fillStyle = '#526459'; g.strokeStyle = '#e4e8de'; g.lineWidth = 1;
+  // y grid / ticks
+  const yt = o.yTicks || niceTicks(o.yMin, o.yMax, 5);
+  g.textAlign = 'right'; g.textBaseline = 'middle';
+  yt.forEach(v => { const y = sy(v); g.beginPath(); g.moveTo(ml, y); g.lineTo(ml + pw, y); g.stroke(); g.fillText(o.yFmt ? o.yFmt(v) : fmt(v, o.yDec ?? 2), ml - 8, y); });
+  // x ticks
+  let xt = o.xTicks;
+  if (!xt) { if (o.xLog) { xt = []; for (let e = Math.ceil(x0); e <= x1; e++) xt.push(Math.pow(10, e)); } else xt = niceTicks(o.xMin, o.xMax, 6); }
+  g.textAlign = 'center'; g.textBaseline = 'top';
+  xt.forEach(v => { const x = sx(v); g.beginPath(); g.moveTo(x, mt); g.lineTo(x, mt + ph); g.stroke(); g.fillText(o.xFmt ? o.xFmt(v) : fmt(v, o.xDec ?? 0), x, mt + ph + 6); });
+  // right axis ticks
+  if (o.right) { g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillStyle = o.right.color || '#526459'; niceTicks(o.right.min, o.right.max, 5).forEach(v => g.fillText(o.right.fmt ? o.right.fmt(v) : fmt(v), ml + pw + 8, sy2(v))); g.fillStyle = '#526459'; }
+  // axes labels
+  g.textAlign = 'center'; g.textBaseline = 'bottom'; g.fillText(o.xLabel || '', ml + pw / 2, H - 4);
+  g.save(); g.translate(14, mt + ph / 2); g.rotate(-Math.PI / 2); g.textBaseline = 'top'; g.fillText(o.yLabel || '', 0, 0); g.restore();
+  if (o.right && o.right.label) { g.save(); g.translate(W - 6, mt + ph / 2); g.rotate(Math.PI / 2); g.textBaseline = 'top'; g.fillStyle = o.right.color || '#526459'; g.fillText(o.right.label, 0, 0); g.restore(); }
+  g.save(); g.beginPath(); g.rect(ml, mt, pw, ph); g.clip();
+  // histogram bars
+  (o.bars || []).forEach(b => { g.fillStyle = b.color; g.globalAlpha = b.alpha ?? .55; for (let i = 0; i < b.counts.length; i++) { const xa = sx(b.edges[i]), xb = sx(b.edges[i + 1]), y = sy(b.counts[i]); g.fillRect(xa, y, Math.max(1, xb - xa - .5), mt + ph - y); } g.globalAlpha = 1; });
+  // segments (confidence intervals etc.)
+  (o.segments || []).forEach(s => { g.strokeStyle = s.color; g.lineWidth = s.width || 2; g.beginPath(); g.moveTo(sx(s.x0), sy(s.y)); g.lineTo(sx(s.x1), sy(s.y)); g.stroke(); });
+  // lines
+  (o.lines || []).forEach(l => {
+    const Y = l.axis === 'right' ? sy2 : sy;
+    g.strokeStyle = l.color; g.lineWidth = l.width || 2; g.setLineDash(l.dash || []);
+    g.beginPath(); l.x.forEach((xv, i) => { const X = sx(xv), Yv = Y(l.y[i]); i ? g.lineTo(X, Yv) : g.moveTo(X, Yv); }); g.stroke(); g.setLineDash([]);
+    if (l.marker) { g.fillStyle = l.color; l.x.forEach((xv, i) => { g.beginPath(); g.arc(sx(xv), Y(l.y[i]), 4, 0, Math.PI * 2); g.fill(); }); }
+  });
+  (o.hlines || []).forEach(h => { const Y = h.axis === 'right' ? sy2 : sy; g.strokeStyle = h.color; g.lineWidth = 1.5; g.setLineDash(h.dash || [6, 4]); g.beginPath(); g.moveTo(ml, Y(h.y)); g.lineTo(ml + pw, Y(h.y)); g.stroke(); g.setLineDash([]); });
+  (o.vlines || []).forEach(v => { g.strokeStyle = v.color; g.lineWidth = 1.5; g.setLineDash(v.dash || [6, 4]); g.beginPath(); g.moveTo(sx(v.x), mt); g.lineTo(sx(v.x), mt + ph); g.stroke(); g.setLineDash([]); });
+  g.restore();
+  // legend
+  const items = [...(o.bars || []), ...(o.lines || []), ...(o.hlines || []), ...(o.vlines || [])].filter(i => i.label);
+  let ly = mt + 8; g.font = '12.5px "Segoe UI","Malgun Gothic",sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+  items.forEach(i => { const w = g.measureText(i.label).width + 30; const lxp = ml + pw - w - 6; g.fillStyle = '#ffffffd9'; g.fillRect(lxp - 4, ly - 9, w + 8, 18); g.strokeStyle = i.color; g.fillStyle = i.color; g.lineWidth = 3; g.setLineDash(i.dash || []); if (i.counts) g.fillRect(lxp, ly - 5, 16, 10); else { g.beginPath(); g.moveTo(lxp, ly); g.lineTo(lxp + 16, ly); g.stroke(); } g.setLineDash([]); g.fillStyle = '#253a31'; g.fillText(i.label, lxp + 22, ly); ly += 18; });
+}
+function histogram(values, edges) {
+  const counts = new Array(edges.length - 1).fill(0), w = edges[1] - edges[0];
+  values.forEach(v => { const i = Math.floor((v - edges[0]) / w); if (i >= 0 && i < counts.length) counts[i]++; });
+  return counts;
+}
+function linspace(a, b, n) { return Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1)); }
+function table(id, head, rows) { $('#' + id).innerHTML = `<table class="t"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`; }
+const PALETTE = ['#3b674d', '#d3815b', '#4b6fa8', '#8c5aa0', '#c9a227', '#2a9d8f', '#b95245', '#6d6d6d', '#e07a5f', '#1d3557'];
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav.tabs button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('section.exp').forEach(s => s.classList.toggle('active', s.id === 'exp-' + b.dataset.exp));
+  redrawActive();
+}));
+const redraw = {};
+function redrawActive() { const a = document.querySelector('section.exp.active'); if (a && redraw[a.id]) redraw[a.id](); }
+window.addEventListener('resize', redrawActive);
+
+/* ---------- 실험 1: 동전 ---------- */
+const coinN = $('#coinN'), coinK = $('#coinK');
+const nFromSlider = () => Math.pow(10, +coinN.value);
+coinN.addEventListener('input', () => $('#coinN-v').textContent = fmt(nFromSlider()) + '회');
+coinK.addEventListener('input', () => $('#coinK-v').textContent = coinK.value + '개');
+let coinData = null;
+function runCoin() {
+  const N = nFromSlider(), K = +coinK.value, paths = [];
+  for (let k = 0; k < K; k++) {
+    let heads = 0; const xs = [], ys = [];
+    for (let i = 1; i <= N; i++) {
+      if (Math.random() < .5) heads++;
+      // 로그 스케일이므로 앞부분은 전부, 뒤로 갈수록 듬성듬성 기록한다
+      if (i <= 100 || i % Math.max(1, Math.floor(i / 400)) === 0 || i === N) { xs.push(i); ys.push(heads / i); }
+    }
+    paths.push({ xs, ys, at: {} });
+    // 표에 쓸 값: 10, 100, 1000, 10000, 100000
+    let h = 0; // 다시 계산하지 않고 경로에서 찾는다
+    [10, 100, 1000, 10000, 100000].forEach(t => { if (t <= N) { const j = xs.indexOf(t); paths[k].at[t] = j >= 0 ? ys[j] : null; } });
+  }
+  coinData = { N, paths };
+  drawCoin();
+}
+function drawCoin() {
+  if (!coinData) return;
+  const { N, paths } = coinData;
+  drawChart('coinChart', {
+    xMin: 1, xMax: N, xLog: true, yMin: 0, yMax: 1, xLabel: '시행 횟수 (로그 스케일)', yLabel: '누적 상대도수', yDec: 1,
+    lines: paths.map((p, i) => ({ x: p.xs, y: p.ys, color: PALETTE[i % PALETTE.length], width: 1.6, label: `시뮬레이션 ${i + 1}` })),
+    hlines: [{ y: .5, color: '#b95245', label: '기댓값 0.5' }]
+  });
+  const ts = [10, 100, 1000, 10000, 100000].filter(t => t <= N);
+  table('coinTable', ['시행 횟수', ...paths.map((_, i) => `시뮬레이션 ${i + 1}`)], ts.map(t => [fmt(t), ...paths.map(p => p.at[t] == null ? '—' : p.at[t].toFixed(4))]));
+}
+$('#coinRun').addEventListener('click', runCoin);
+redraw['exp-coin'] = drawCoin;
+
+/* ---------- 실험 2: 주사위 ---------- */
+$('#diceM').addEventListener('input', () => $('#diceM-v').textContent = fmt(+$('#diceM').value) + '회');
+let diceData = null;
+function runDice() {
+  const M = +$('#diceM').value, p = 1 / 6;
+  const ns = $('#diceNs').value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => n > 0 && n <= 100000).slice(0, 5);
+  if (!ns.length) return;
+  const res = ns.map(n => {
+    const vals = new Float64Array(M);
+    for (let m = 0; m < M; m++) { let six = 0; for (let i = 0; i < n; i++) if (Math.random() < p) six++; vals[m] = six / n; }
+    const mean = vals.reduce((a, b) => a + b, 0) / M, sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / M);
+    return { n, vals: Array.from(vals), mean, sd, tsd: Math.sqrt(p * (1 - p) / n) };
+  });
+  diceData = { M, p, res };
+  drawDice();
+}
+function drawDice() {
+  if (!diceData) return;
+  const { M, p, res } = diceData;
+  const edges = linspace(0, .5, 51), w = edges[1] - edges[0];
+  const bars = res.map((r, i) => ({ edges, counts: histogram(r.vals, edges).map(c => c / (M * w)), color: PALETTE[i], alpha: .55, label: `n = ${fmt(r.n)}` }));
+  const yMax = Math.max(...bars.flatMap(b => b.counts)) * 1.1;
+  drawChart('diceHist', { xMin: 0, xMax: .5, yMin: 0, yMax, xLabel: '6의 눈 상대도수', yLabel: '밀도', xDec: 2, yDec: 0, bars, vlines: [{ x: p, color: '#b95245', label: '이론값 1/6 = 0.1667' }] });
+  table('diceTable', ['n', '실제 평균', '이론 평균 p', '실제 표준편차', '이론 표준편차 √(p(1−p)/n)', '비율 (실제/이론)'],
+    res.map(r => [fmt(r.n), r.mean.toFixed(4), p.toFixed(4), r.sd.toFixed(4), r.tsd.toFixed(4), (r.sd / r.tsd).toFixed(2)]));
+  const ns = res.map(r => r.n), lo = Math.min(...ns), hi = Math.max(...ns);
+  drawChart('diceStd', { xMin: lo / 1.5, xMax: hi * 1.5, xLog: true, yMin: 0, yMax: Math.max(...res.map(r => Math.max(r.sd, r.tsd))) * 1.2, xLabel: 'n (로그 스케일)', yLabel: '상대도수의 표준편차', yDec: 3, xTicks: ns,
+    lines: [{ x: ns, y: res.map(r => r.sd), color: '#3b674d', marker: true, label: '실제 표준편차' }, { x: ns, y: res.map(r => r.tsd), color: '#b95245', dash: [6, 4], marker: true, label: '이론 표준편차 (1/√n에 비례)' }] });
+}
+$('#diceRun').addEventListener('click', runDice);
+redraw['exp-dice'] = drawDice;
+
+/* ---------- 실험 3: 뽑기 ---------- */
+$('#gP').addEventListener('input', () => $('#gP-v').textContent = (+$('#gP').value).toFixed(2));
+$('#gDraws').addEventListener('input', () => $('#gDraws-v').textContent = fmt(+$('#gDraws').value) + '회');
+$('#gThr').addEventListener('input', () => $('#gThr-v').textContent = $('#gThr').value + '회');
+let gData = null, gSimData = null;
+function runGacha() {
+  const p = +$('#gP').value, cost = +$('#gCost').value || 1000;
+  const ns = $('#gNs').value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => n > 0).sort((a, b) => a - b).slice(0, 12);
+  if (!ns.length) return;
+  const rows = ns.map(n => { const sd = Math.sqrt(p * (1 - p) / n); return { n, sd, moe: 2 * sd, cost: n * cost }; });
+  const need = e => Math.ceil(4 * p * (1 - p) / (e * e));
+  gData = { p, cost, rows, first01: rows.find(r => r.moe <= .01), first005: rows.find(r => r.moe <= .005), need01: need(.01), need005: need(.005) };
+  drawGacha();
+}
+function drawGacha() {
+  if (!gData) return;
+  const { p, cost, rows, first01, first005, need01, need005 } = gData;
+  const ns = rows.map(r => r.n);
+  drawChart('gChart', { xMin: ns[0] / 1.3, xMax: ns[ns.length - 1] * 1.3, xLog: true, yMin: 0, yMax: Math.max(.012, rows[0].moe * 1.15), xLabel: 'n (시행 횟수, 로그 스케일)', yLabel: '오차한계 (2 × 표준편차)', yDec: 3, xTicks: ns,
+    right: { min: 0, max: rows[rows.length - 1].cost * 1.1, label: '총 비용 (원)', color: '#d3815b', fmt: v => fmt(v) },
+    lines: [{ x: ns, y: rows.map(r => r.moe), color: '#3b674d', marker: true, label: '오차한계' }, { x: ns, y: rows.map(r => r.cost), axis: 'right', color: '#d3815b', dash: [6, 4], marker: true, label: '총 비용 (오른쪽 축)' }],
+    hlines: [{ y: .01, color: '#b95245', label: '오차한계 0.01' }, { y: .005, color: '#4b6fa8', label: '오차한계 0.005' }] });
+  $('#gStat').innerHTML = `<div><small>목록에서 오차한계 ≤ 0.01이 되는 첫 n</small><strong>${first01 ? fmt(first01.n) + '회' : '없음'}</strong><small>정확한 최소 n = ${fmt(need01)}회 · ${fmt(need01 * cost)}원</small></div>
+<div><small>목록에서 오차한계 ≤ 0.005가 되는 첫 n</small><strong>${first005 ? fmt(first005.n) + '회' : '없음'}</strong><small>정확한 최소 n = ${fmt(need005)}회 · ${fmt(need005 * cost)}원</small></div>`;
+  table('gTable', ['n (시행 횟수)', '상대도수 표준편차', '오차한계 (2σ)', '총 비용 (원)'], rows.map(r => [fmt(r.n), r.sd.toFixed(6), r.moe.toFixed(6), fmt(r.cost)]));
+}
+function runGachaSim() {
+  const p = +$('#gP').value, draws = +$('#gDraws').value, thr = +$('#gThr').value, M = 2000;
+  const counts = new Array(M);
+  for (let m = 0; m < M; m++) { let c = 0; for (let i = 0; i < draws; i++) if (Math.random() < p) c++; counts[m] = c; }
+  gSimData = { p, draws, thr, M, counts };
+  drawGachaSim();
+}
+function drawGachaSim() {
+  if (!gSimData) return;
+  const { p, draws, thr, M, counts } = gSimData;
+  const mu = draws * p, sd = Math.sqrt(draws * p * (1 - p));
+  const lo = Math.max(0, Math.floor(mu - 4.5 * sd)), hi = Math.ceil(mu + 4.5 * sd);
+  const edges = []; for (let v = lo; v <= hi + 1; v++) edges.push(v - .5);
+  const c = histogram(counts, edges);
+  const below = counts.filter(x => x <= thr).length;
+  drawChart('gHist', { xMin: lo - .5, xMax: hi + .5, yMin: 0, yMax: Math.max(...c) * 1.15, xLabel: `${fmt(draws)}회 뽑기에서 나온 전설 개수`, yLabel: '실험 횟수', yDec: 0,
+    bars: [{ edges, counts: c, color: '#3b674d', alpha: .7, label: `실험 ${fmt(M)}번` }],
+    vlines: [{ x: thr + .5, color: '#b95245', label: `기준 ${thr}회 이하` }, { x: mu, color: '#4b6fa8', dash: [2, 4], label: `기댓값 np = ${mu.toFixed(1)}` }] });
+  $('#gSimStat').innerHTML = `<div><small>전설이 ${thr}회 이하로 나온 실험</small><strong>${below}번 / ${fmt(M)}번</strong><small>비율 ${(below / M).toFixed(4)} (${(below / M * 100).toFixed(2)}%)</small></div>
+<div><small>이론값</small><strong>np = ${mu.toFixed(1)}, σ = ${sd.toFixed(2)}</strong><small>${thr}회는 평균에서 ${((thr - mu) / sd).toFixed(2)}σ 떨어진 값</small></div>`;
+}
+$('#gRun').addEventListener('click', runGacha);
+$('#gSim').addEventListener('click', runGachaSim);
+redraw['exp-gacha'] = () => { drawGacha(); drawGachaSim(); };
+
+/* 첫 화면 */
+runCoin();
+})();
+</script>
+</body>
+</html>
