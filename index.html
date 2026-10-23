@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="번호 타일을 섞고 선생님들의 실험을 모아 자연상수 e를 발견하는 참여형 수학 실험실">
 <title>e-Tester · 아무도 제자리가 아니면</title>
-<link rel="stylesheet" href="style.css?v=20261023">
+<link rel="stylesheet" href="style.css?v=20261024">
 <script src="firebase-config.js" defer></script><script src="math.js" defer></script><script src="app.js" defer></script>
 </head>
 <body>
@@ -17,6 +17,7 @@
 <nav class="steps" aria-label="탐구 단계"><button class="active" data-tab="experiment"><b>01</b> 타일 실험</button><button data-tab="results"><b>02</b> 우리의 데이터</button><button data-tab="theory"><b>03</b> 왜 e일까?</button></nav>
 <div id="hostControls" hidden></div>
 <div id="autoBar" class="auto-bar" hidden aria-live="polite"></div>
+<section id="talk" class="talk" hidden aria-label="실시간 의견"><div class="talk-head"><strong>실시간 의견</strong><span id="talkCount" class="note"></span><button class="plain" id="talkToggle" type="button">접기</button></div><div id="talkBody"><div id="talkPrompt" class="talk-prompt" hidden></div><div class="talk-react"><button class="secondary" type="button" data-react="ok">👍 이해됐어요</button><button class="secondary" type="button" data-react="q">❓ 질문 있어요</button><button class="secondary" type="button" data-react="wow">😮 예상과 달라요</button></div><form id="talkForm" class="talk-form"><input id="talkText" maxlength="80" placeholder="한 줄 의견을 적어 보내세요" autocomplete="off"><button class="primary" type="submit">보내기</button></form><div id="talkHost" class="talk-host" hidden><form id="promptForm"><input id="promptText" maxlength="80" placeholder="선생님들께 띄울 질문" autocomplete="off"><button class="secondary" type="submit">질문 띄우기</button></form><button class="outline" id="talkClear" type="button">의견 비우기</button></div><ol id="talkFeed" class="talk-feed" aria-live="polite"></ol></div></section>
 <div id="app"></div>
 <footer><span>e-Tester</span><p>루미큐브 타일 실험을 웹으로 옮긴 수학 탐구 활동 · 장치 없이, 함께 발견하는 자연상수</p><button class="plain" id="sourceOpen">원고와 수학적 근거</button></footer>
 </main>

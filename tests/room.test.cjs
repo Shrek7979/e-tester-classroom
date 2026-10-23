@@ -20,6 +20,13 @@ function client(){
  const guest=client();await guest.click('joinOpen');guest.make('nickname').value='guest';guest.make('roomCode').value=code;await guest.submit();
  const parts=()=>shared[code].rounds[shared[code].config.epoch].participants;
  assert.equal(Object.keys(parts()).length,2);
+ // 실시간 의견: 반응과 한 줄 의견이 진행자에게, 진행자 질문이 참가자에게 전달되고, 비우기가 양쪽에 반영된다
+ await guest.click('',{react:'q'});guest.make('talkText').value='왜 1/e에 가까워지나요?';await guest.events['talkForm:submit']({preventDefault(){}});
+ assert.equal(guest.make('talkText').value,'');await host.poll();
+ assert.match(host.make('talkFeed').innerHTML,/왜 1\/e에 가까워지나요\?/);assert.match(host.make('talkCount').textContent,/❓ 1/);
+ host.make('promptText').value='완전불일치 비율을 예상해 보세요';await host.events['promptForm:submit']({preventDefault(){}});await guest.poll();
+ assert.match(guest.make('talkPrompt').textContent,/완전불일치 비율을 예상해 보세요/);assert.equal(guest.make('talkHost').hidden,true);assert.equal(host.make('talkHost').hidden,false);
+ await host.click('talkClear');await guest.poll();assert.doesNotMatch(guest.make('talkFeed').innerHTML,/1\/e에 가까워지나요/);assert.match(guest.make('talkCount').textContent,/❓ 0/);
  await host.click('',{stage:'1'});await guest.poll();await host.click('',{run:'10'});await guest.click('',{run:'1000'});await host.poll();
  assert.equal(Object.values(parts()).reduce((s,p)=>s+p.total,0),1010);
  await host.click('',{tab:'results'});assert.match(host.make('app').innerHTML,/1,010/);
@@ -46,5 +53,5 @@ function client(){
  await guest.click('retrySave');
  await guest.click('',{tab:'results'});assert.match(guest.make('app').innerHTML,/타일 번호별 제자리 빈도 그래프/);
 
- console.log('PASS room create/join, phase sync, 1010 pooled trials, idempotent resend, offline retry, math reveal, n change confirmation, epoch isolation, per-position counts, auto speed/start/stop and offline auto pause');
+ console.log('PASS room create/join, live reactions/comments/host prompt/clear, phase sync, 1010 pooled trials, idempotent resend, offline retry, math reveal, n change confirmation, epoch isolation, per-position counts, auto speed/start/stop and offline auto pause');
 })().catch(e=>{console.error(e);process.exitCode=1});
