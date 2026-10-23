@@ -4,8 +4,8 @@
 
 ## 선생님들과 함께 사용하기
 
-- [GitHub Pages에서 앱 실행](https://shrek7979.github.io/e-tester-classroom/)
-- [기존 앱 주소](https://stats-magic-show.web.app/)
+- [공식 주소에서 앱 실행](https://shrek7979.github.io/e-tester-classroom/) · 진행자는 `?host=1`을 붙입니다.
+- 예전 주소 `https://stats-magic-show.web.app/`는 공식 주소로 자동 이동합니다(참가 코드 쿼리 유지).
 - [질문과 수업 후기 게시판](https://github.com/Shrek7979/e-tester-classroom/discussions)
 - [오류 제보와 개선 제안](https://github.com/Shrek7979/e-tester-classroom/issues/new/choose)
 - [참여 안내](COMMUNITY.md)
@@ -44,7 +44,7 @@
 
 ## 파일과 배포
 
-`index.html`, `style.css`, `app.js`, `math.js`가 새 앱입니다. `firebase-config.js`는 기존 연결 설정입니다. `build.ps1`은 배포할 웹 파일만 `dist`에 복사합니다. 원고, 설명 문서, 검증 자료는 배포하지 않습니다.
+`index.html`, `style.css`, `app.js`, `math.js`, `qr.js`가 앱입니다. `firebase-config.js`는 실시간 데이터베이스 연결 설정입니다. 공식 배포는 GitHub Pages이며 `main`에 푸시하면 약 1분 뒤 반영됩니다. `build.ps1`은 앱 파일만 `dist`에 모읍니다(다른 곳에 올릴 때 사용). 원고, 발표자료, 검증 자료는 배포하지 않습니다.
 
 ```powershell
 node tests/math.test.cjs
@@ -52,7 +52,7 @@ node tests/math.test.cjs
 firebase deploy --only hosting --non-interactive
 ```
 
-Firebase Hosting 프로젝트는 기존 `stats-magic-show`를 사용합니다. 배포 후 새 앱 주소는 `https://stats-magic-show.web.app/`입니다. 이 README의 주소만으로 배포 완료를 의미하지 않으며 실제 배포 결과를 확인해야 합니다.
+Firebase Hosting(`stats-magic-show.web.app`)에는 앱 대신 `redirect/`의 안내 페이지만 올립니다. 이 페이지는 들어온 쿼리(참가 코드 등)를 그대로 붙여 공식 주소로 이동시키므로, 예전 QR이나 링크도 계속 쓸 수 있습니다. 실시간 데이터베이스는 같은 Firebase 프로젝트를 계속 사용합니다.
 
 ## 폴더 구성
 

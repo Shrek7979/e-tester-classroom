@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>e-Tester 주소가 바뀌었습니다</title>
+<script>
+// 예전 주소(stats-magic-show.web.app)로 들어온 경우 공식 주소로 보냅니다. 참가 코드 등 쿼리는 그대로 넘깁니다.
+(function () {
+  var base = 'https://shrek7979.github.io/e-tester-classroom/';
+  var path = location.pathname.replace(/^\/+/, '');
+  var search = location.search || '';
+  if (/^host(\.html)?$/.test(path) && !/[?&]host=/.test(search)) search = search ? search + '&host=1' : '?host=1';
+  location.replace(base + search);
+})();
+</script>
+<style>body{font-family:'Segoe UI','Malgun Gothic',sans-serif;padding:40px 24px;color:#1b2a33;line-height:1.7}a{color:#1f8a5b;font-weight:700}</style>
+</head>
+<body>
+<p>e-Tester의 공식 주소가 바뀌었습니다. 자동으로 이동하지 않으면 아래 링크를 누르세요.</p>
+<p><a href="https://shrek7979.github.io/e-tester-classroom/">https://shrek7979.github.io/e-tester-classroom/</a></p>
+</body>
+</html>
