@@ -58,3 +58,4 @@ dialog label,#roomError{font-size:16px}
 .talk-feed{list-style:none;margin:8px 0 0;padding:0;max-height:240px;overflow:auto;font-size:15px}.talk-feed li{padding:6px 0;border-bottom:1px solid var(--line)}.talk-feed b{color:var(--green);margin-right:6px}.talk-feed small{color:var(--sub);margin-left:6px;font-size:12px}.talk-feed li.empty{color:var(--sub);border:0}
 @media(max-width:650px){.talk{padding:12px 14px}.talk-react button{min-width:0;font-size:14px;padding:9px 6px}.talk-feed{max-height:180px}}
 .talk-host[hidden],.talk[hidden],#talkBody[hidden]{display:none}
+.share-qr{display:flex;justify-content:center;margin:4px 0 10px}.share-qr svg{width:min(280px,70vw);height:auto;border:1px solid var(--line);border-radius:12px}
